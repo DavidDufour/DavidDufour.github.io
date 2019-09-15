@@ -15,12 +15,12 @@
 			import Stats from './jsm/libs/stats.module.js';
 
 			import { OrbitControls } from './jsm/controls/OrbitControls.js';
-			import { OutlineEffect } from './jsm/effects/OutlineEffect.js';
 			// Pixelation post-processing
 			import { GUI } from './jsm/libs/dat.gui.module.js';
 			import { EffectComposer } from './jsm/postprocessing/EffectComposer.js';
 			import { RenderPass } from './jsm/postprocessing/RenderPass.js';
 			import { ShaderPass } from './jsm/postprocessing/ShaderPass.js';
+			import { OutlinePass } from './jsm/postprocessing/OutlinePass.js';
 			import { PixelShader } from './jsm/shaders/PixelShader.js';
 
 			var container, stats;
@@ -166,7 +166,7 @@
 				pixelPass.uniforms[ "resolution" ].value.multiplyScalar( window.devicePixelRatio );
 				composer.addPass( pixelPass );
 				// Outline
-				outlinePass = new OutlineEffect( renderer );
+				outlinePass = new THREE.OutlinePass(new THREE.Vector2(window.innerWidth, window.innerHeight), scene, camera);
 				composer.addPass( outlinePass );
 
 				params = {
