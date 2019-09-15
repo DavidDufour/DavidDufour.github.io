@@ -166,7 +166,6 @@
 				pixelPass.uniforms[ "resolution" ].value.multiplyScalar( window.devicePixelRatio );
 				composer.addPass( pixelPass );
 				// Outline
-				outlinePass = new THREE.OutlinePass(new THREE.Vector2(window.innerWidth, window.innerHeight), scene, camera);
 				composer.addPass( outlinePass );
 
 				params = {
