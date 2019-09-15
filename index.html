@@ -16,34 +16,56 @@
 
 			import { OrbitControls } from './jsm/controls/OrbitControls.js';
 			import { OutlineEffect } from './jsm/effects/OutlineEffect.js';
+			// Pixelation post-processing
+			import { GUI } from './jsm/libs/dat.gui.module.js';
+			import { EffectComposer } from './jsm/postprocessing/EffectComposer.js';
+			import { RenderPass } from './jsm/postprocessing/RenderPass.js';
+			import { ShaderPass } from './jsm/postprocessing/ShaderPass.js';
+			import { PixelShader } from './jsm/shaders/PixelShader.js';
 
 			var container, stats;
 
-			var camera, scene, renderer, effect;
+			var camera, scene, renderer, effect, gui, composer;
 			var particleLight;
+			// Pixelization
+			var pixelPass, params;
 
 			var loader = new THREE.FontLoader();
 			loader.load( 'fonts/gentilis_regular.typeface.json', function ( font ) {
-
 				init( font );
 				animate();
-
-			} );
+			});
 
 			function init( font ) {
-
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
 
+				// Scene
+				scene = new THREE.Scene();
+
+				// Camera
 				camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 2000 );
 				camera.position.set( 0.0, 400, 400 * 3.5 );
 
-				//
+				// WebGL renderer
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
+				renderer.gammaInput = true;
+				renderer.gammaOutput = true;
 
-				scene = new THREE.Scene();
+				// Stats (FPS, ...)
+				stats = new Stats();
+				container.appendChild( stats.dom );
+
+				// Orbital controls
+				var controls = new OrbitControls( camera, renderer.domElement );
+
+				// Handles resizing of windows
+				window.addEventListener( 'resize', onWindowResize, false );
 
 				// Materials
-
 				var imgTexture = new THREE.TextureLoader().load( "textures/planets/moon_1024.jpg" );
 				imgTexture.wrapS = imgTexture.wrapT = THREE.RepeatWrapping;
 				imgTexture.anisotropy = 16;
@@ -137,48 +159,43 @@
 				var pointLight = new THREE.PointLight( 0xffffff, 2, 800 );
 				particleLight.add( pointLight );
 
-				//
-
-				renderer = new THREE.WebGLRenderer( { antialias: true } );
-				renderer.setPixelRatio( window.devicePixelRatio );
-				renderer.setSize( window.innerWidth, window.innerHeight );
-				container.appendChild( renderer.domElement );
-
-				renderer.gammaInput = true;
-				renderer.gammaOutput = true;
-
+				// Outline
 				effect = new OutlineEffect( renderer );
 
-				//
+				// Pixelization
+				composer = new EffectComposer( renderer );
+				composer.addPass( new RenderPass( scene, camera ) );
+				pixelPass = new ShaderPass( PixelShader );
+				pixelPass.uniforms[ "resolution" ].value = new THREE.Vector2( window.innerWidth, window.innerHeight );
+				pixelPass.uniforms[ "resolution" ].value.multiplyScalar( window.devicePixelRatio );
+				composer.addPass( pixelPass );
 
-				stats = new Stats();
-				container.appendChild( stats.dom );
+				params = {
+					pixelSize: 16,
+					postprocessing: true
+				};
 
-				var controls = new OrbitControls( camera, renderer.domElement );
-
-				window.addEventListener( 'resize', onWindowResize, false );
-
+				// GUI for editing parameters
+				gui = new GUI();
+				gui.add( params, 'pixelSize' ).min( 2 ).max( 32 ).step( 2 );
+				gui.add( params, 'postprocessing' );
 			}
 
 			function onWindowResize() {
-
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
-
 				renderer.setSize( window.innerWidth, window.innerHeight );
 
+				// Pixelization
+				pixelPass.uniforms[ "resolution" ].value.set( window.innerWidth, window.innerHeight ).multiplyScalar( window.devicePixelRatio );
 			}
 
-			//
-
 			function animate() {
-
 				requestAnimationFrame( animate );
 
 				stats.begin();
 				render();
 				stats.end();
-
 			}
 
 			function render() {
@@ -190,14 +207,21 @@
 
 				camera.lookAt( scene.position );
 
+				// Changes the location of the moving light
 				particleLight.position.x = Math.sin( timer * 7 ) * 300;
 				particleLight.position.y = Math.cos( timer * 5 ) * 400;
 				particleLight.position.z = Math.cos( timer * 3 ) * 300;
 
-				effect.render( scene, camera );
+				pixelPass.uniforms[ "pixelSize" ].value = params.pixelSize;
 
+				if ( params.postprocessing ) {
+					// Pixelization
+					composer.render();
+				} else {
+					// Outline
+					effect.render( scene, camera );
+				}
 			}
-
 		</script>
 	</body>
 </html>
