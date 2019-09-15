@@ -40,13 +40,7 @@
 
 				//
 
-				var reflectionCube = new THREE.CubeTextureLoader()
-					.setPath( 'textures/cube/SwedishRoyalCastle/' )
-					.load( [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ] );
-				reflectionCube.format = THREE.RGBFormat;
-
 				scene = new THREE.Scene();
-				scene.background = reflectionCube;
 
 				// Materials
 
@@ -84,7 +78,7 @@
 								specular: specularColor,
 								reflectivity: beta,
 								shininess: specularShininess,
-								envMap: alphaIndex % 2 === 0 ? null : reflectionCube
+								envMap: null
 							} );
 
 							var mesh = new THREE.Mesh( geometry, material );
