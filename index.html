@@ -15,7 +15,7 @@
 			import Stats from './jsm/libs/stats.module.js';
 
 			import { OrbitControls } from './jsm/controls/OrbitControls.js';
-			import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
+			import { OBJLoader } from './jsm/loaders/OBJLoader.js';
 			// Pixelation post-processing
 			import { GUI } from './jsm/libs/dat.gui.module.js';
 			import { EffectComposer } from './jsm/postprocessing/EffectComposer.js';
@@ -93,10 +93,10 @@
 				composer.addPass( outlinePass );
 
 				// Tan model
-				var loader = new GLTFLoader();
+				var loader = new OBJLoader();
 				loader.load(
 					// resource URL
-					'models/Tan.gltf',
+					'models/Tan.obj',
 					// called when resource is loaded
 					function ( object ) {
 						scene.add( object.scene );
