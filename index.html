@@ -91,86 +91,27 @@
 
 				composer.addPass( outlinePass );
 
-				// Materials
-				var imgTexture = new THREE.TextureLoader().load( "textures/planets/moon_1024.jpg" );
-				imgTexture.wrapS = imgTexture.wrapT = THREE.RepeatWrapping;
-				imgTexture.anisotropy = 16;
-				imgTexture = null;
+				// Tan model
+				// instantiate a loader
+				var loader = new THREE.OBJLoader();
 
-				var bumpScale = 1;
-				var cubeWidth = 400;
-				var numberOfSphersPerSide = 5;
-				var sphereRadius = ( cubeWidth / numberOfSphersPerSide ) * 0.8 * 0.5;
-				var stepSize = 1.0 / numberOfSphersPerSide;
-
-				var geometry = new THREE.SphereBufferGeometry( sphereRadius, 32, 16 );
-
-				for ( var alpha = 0, alphaIndex = 0; alpha <= 1.0; alpha += stepSize, alphaIndex ++ ) {
-
-					var specularShininess = Math.pow( 2, alpha * 10 );
-
-					for ( var beta = 0; beta <= 1.0; beta += stepSize ) {
-
-						var specularColor = new THREE.Color( beta * 0.2, beta * 0.2, beta * 0.2 );
-
-						for ( var gamma = 0; gamma <= 1.0; gamma += stepSize ) {
-
-							// basic monochromatic energy preservation
-							var diffuseColor = new THREE.Color().setHSL( alpha, 0.5, gamma * 0.5 + 0.1 ).multiplyScalar( 1 - beta * 0.2 );
-
-							var material = new THREE.MeshToonMaterial( {
-								map: imgTexture,
-								bumpMap: imgTexture,
-								bumpScale: bumpScale,
-								color: diffuseColor,
-								specular: specularColor,
-								reflectivity: beta,
-								shininess: specularShininess,
-								envMap: null
-							} );
-
-							var mesh = new THREE.Mesh( geometry, material );
-
-							mesh.position.x = alpha * 400 - 200;
-							mesh.position.y = beta * 400 - 200;
-							mesh.position.z = gamma * 400 - 200;
-
-							scene.add( mesh );
-							// Adds mesh to be outlined
-							outlinePass.selectedObjects = mesh;
-						}
-
+				// load a resource
+				loader.load(
+					// resource URL
+					'models/Tan.obj',
+					// called when resource is loaded
+					function ( object ) {
+						scene.add( object );
+					},
+					// called when loading is in progresses
+					function ( xhr ) {
+						console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+					},
+					// called when loading has errors
+					function ( error ) {
+						console.log( 'An error happened' );
 					}
-
-				}
-
-				function addLabel( name, location ) {
-
-					var textGeo = new THREE.TextBufferGeometry( name, {
-
-						font: font,
-
-						size: 20,
-						height: 1,
-						curveSegments: 1
-
-					} );
-
-					var textMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff } );
-					var textMesh = new THREE.Mesh( textGeo, textMaterial );
-					textMesh.position.copy( location );
-					scene.add( textMesh );
-
-				}
-
-				addLabel( "-shininess", new THREE.Vector3( - 350, 0, 0 ) );
-				addLabel( "+shininess", new THREE.Vector3( 350, 0, 0 ) );
-
-				addLabel( "-specular, -reflectivity", new THREE.Vector3( 0, - 300, 0 ) );
-				addLabel( "+specular, +reflectivity", new THREE.Vector3( 0, 300, 0 ) );
-
-				addLabel( "-diffuse", new THREE.Vector3( 0, 0, - 300 ) );
-				addLabel( "+diffuse", new THREE.Vector3( 0, 0, 300 ) );
+				);
 
 				// GUI for editing parameters
 				params = {
