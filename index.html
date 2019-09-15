@@ -15,6 +15,7 @@
 			import Stats from './jsm/libs/stats.module.js';
 
 			import { OrbitControls } from './jsm/controls/OrbitControls.js';
+			import { OBJLoader } from './jsm/loaders/OBJLoader.js';
 			// Pixelation post-processing
 			import { GUI } from './jsm/libs/dat.gui.module.js';
 			import { EffectComposer } from './jsm/postprocessing/EffectComposer.js';
@@ -92,10 +93,7 @@
 				composer.addPass( outlinePass );
 
 				// Tan model
-				// instantiate a loader
-				var loader = new THREE.OBJLoader();
-
-				// load a resource
+				var loader = new OBJLoader();
 				loader.load(
 					// resource URL
 					'models/Tan.obj',
@@ -103,7 +101,7 @@
 					function ( object ) {
 						scene.add( object );
 					},
-					// called when loading is in progresses
+					// called when loading is in progress
 					function ( xhr ) {
 						console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
 					},
