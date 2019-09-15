@@ -176,10 +176,7 @@
 					outline: true,
 					edgeStrength: 3.0,
 					edgeGlow: 0.0,
-					edgeThickness: 1.0,
-					pulsePeriod: 0,
-					rotate: false,
-					usePatternTexture: false
+					edgeThickness: 1.0
 				};
 
 				// GUI for editing parameters
@@ -204,17 +201,10 @@
 				gui.add( params, 'edgeThickness', 1, 4 ).onChange( function ( value ) {
 					outlinePass.edgeThickness = Number( value );
 				} );
-				gui.add( params, 'pulsePeriod', 0.0, 5 ).onChange( function ( value ) {
-					outlinePass.pulsePeriod = Number( value );
-				} );
-				gui.add( params, 'rotate' );
-				gui.add( params, 'usePatternTexture' ).onChange( function ( value ) {
-					outlinePass.usePatternTexture = value;
-				} );
 
 				var Configuration = function () {
 					this.visibleEdgeColor = '#ffffff';
-					this.hiddenEdgeColor = '#190a05';
+					this.hiddenEdgeColor = '#000000';
 				};
 
 				var conf = new Configuration();
