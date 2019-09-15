@@ -64,6 +64,29 @@
 				// Handles resizing of windows
 				window.addEventListener( 'resize', onWindowResize, false );
 
+				// Lights
+
+				scene.add( new THREE.AmbientLight( 0x222222 ) );
+
+				var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+				directionalLight.position.set( 1, 1, 1 ).normalize();
+				scene.add( directionalLight );
+
+				var pointLight = new THREE.PointLight( 0xffffff, 2, 800 );
+				particleLight.add( pointLight );
+
+				// Pixelization
+				composer = new EffectComposer( renderer );
+				composer.addPass( new RenderPass( scene, camera ) );
+				pixelPass = new ShaderPass( PixelShader );
+				pixelPass.uniforms[ "resolution" ].value = new THREE.Vector2( window.innerWidth, window.innerHeight );
+				pixelPass.uniforms[ "resolution" ].value.multiplyScalar( window.devicePixelRatio );
+				composer.addPass( pixelPass );
+				// Outline
+				outlinePass = new OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), scene, camera );
+
+				composer.addPass( outlinePass );
+
 				// Materials
 				var imgTexture = new THREE.TextureLoader().load( "textures/planets/moon_1024.jpg" );
 				imgTexture.wrapS = imgTexture.wrapT = THREE.RepeatWrapping;
@@ -109,7 +132,8 @@
 							mesh.position.z = gamma * 400 - 200;
 
 							scene.add( mesh );
-
+							// Adds mesh to be outlined
+							outlinePass.selectedObjects = mesh;
 						}
 
 					}
@@ -147,28 +171,7 @@
 				particleLight = new THREE.Mesh( new THREE.SphereBufferGeometry( 4, 8, 8 ), new THREE.MeshBasicMaterial( { color: 0xffffff } ) );
 				scene.add( particleLight );
 
-				// Lights
-
-				scene.add( new THREE.AmbientLight( 0x222222 ) );
-
-				var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
-				directionalLight.position.set( 1, 1, 1 ).normalize();
-				scene.add( directionalLight );
-
-				var pointLight = new THREE.PointLight( 0xffffff, 2, 800 );
-				particleLight.add( pointLight );
-
-				// Pixelization
-				composer = new EffectComposer( renderer );
-				composer.addPass( new RenderPass( scene, camera ) );
-				pixelPass = new ShaderPass( PixelShader );
-				pixelPass.uniforms[ "resolution" ].value = new THREE.Vector2( window.innerWidth, window.innerHeight );
-				pixelPass.uniforms[ "resolution" ].value.multiplyScalar( window.devicePixelRatio );
-				composer.addPass( pixelPass );
-				// Outline
-				outlinePass = new OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), scene, camera, geometry );
-				composer.addPass( outlinePass );
-
+				// GUI for editing parameters
 				params = {
 					postprocessing: true,
 					pixelize: true,
@@ -179,7 +182,6 @@
 					edgeThickness: 1.0
 				};
 
-				// GUI for editing parameters
 				gui = new GUI();
 				
 				gui.add( params, 'postprocessing' );
