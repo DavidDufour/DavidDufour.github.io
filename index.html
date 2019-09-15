@@ -84,6 +84,7 @@
 				pixelPass = new ShaderPass( PixelShader );
 				pixelPass.uniforms[ "resolution" ].value = new THREE.Vector2( window.innerWidth, window.innerHeight );
 				pixelPass.uniforms[ "resolution" ].value.multiplyScalar( window.devicePixelRatio );
+				pixelPass.uniforms[ "pixelSize" ].value = 4;
 				composer.addPass( pixelPass );
 				// Outline
 				outlinePass = new OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), scene, camera );
