@@ -159,9 +159,6 @@
 				var pointLight = new THREE.PointLight( 0xffffff, 2, 800 );
 				particleLight.add( pointLight );
 
-				// Outline
-				effect = new OutlineEffect( renderer );
-
 				// Pixelization
 				composer = new EffectComposer( renderer );
 				composer.addPass( new RenderPass( scene, camera ) );
@@ -169,9 +166,13 @@
 				pixelPass.uniforms[ "resolution" ].value = new THREE.Vector2( window.innerWidth, window.innerHeight );
 				pixelPass.uniforms[ "resolution" ].value.multiplyScalar( window.devicePixelRatio );
 				composer.addPass( pixelPass );
+				// Outline
+				var outlinePass = new OutlineEffect( renderer );
+				effect = composer.addPass( outlinePass );
 
 				params = {
-					pixelSize: 16,
+					pixelSize: 4,
+					outline: true,
 					postprocessing: true
 				};
 
@@ -199,7 +200,6 @@
 			}
 
 			function render() {
-
 				var timer = Date.now() * 0.00025;
 
 				//camera.position.x = Math.cos( timer ) * 800;
@@ -215,11 +215,12 @@
 				pixelPass.uniforms[ "pixelSize" ].value = params.pixelSize;
 
 				if ( params.postprocessing ) {
+					outlinePass.enabled = params.outline;
+
 					// Pixelization
 					composer.render();
 				} else {
-					// Outline
-					effect.render( scene, camera );
+					renderer.render( scene, camera );
 				}
 			}
 		</script>
