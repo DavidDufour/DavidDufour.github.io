@@ -178,10 +178,46 @@
 
 				// GUI for editing parameters
 				gui = new GUI();
-				gui.add( params, 'pixelize' );
-				gui.add( params, 'outline' );
-				gui.add( params, 'pixelSize' ).min( 2 ).max( 32 ).step( 2 );
+				
 				gui.add( params, 'postprocessing' );
+				gui.add( params, 'pixelize' ).onChange( function ( value ) {
+					pixelPass.enabled = Boolean( value );
+				} );
+				gui.add( params, 'pixelSize' ).min( 2 ).max( 32 ).step( 2 ).onChange( function ( value ) {
+					pixelPass.uniforms[ "pixelSize" ].value = params.pixelSize;
+				} );
+				gui.add( params, 'outline' ).onChange( function ( value ) {
+					outlinePass.enabled = Boolean( value );
+				} );
+				gui.add( params, 'edgeStrength', 0.01, 10 ).onChange( function ( value ) {
+				outlinePass.edgeStrength = Number( value );
+				} );
+				gui.add( params, 'edgeGlow', 0.0, 1 ).onChange( function ( value ) {
+					outlinePass.edgeGlow = Number( value );
+				} );
+				gui.add( params, 'edgeThickness', 1, 4 ).onChange( function ( value ) {
+					outlinePass.edgeThickness = Number( value );
+				} );
+				gui.add( params, 'pulsePeriod', 0.0, 5 ).onChange( function ( value ) {
+					outlinePass.pulsePeriod = Number( value );
+				} );
+				gui.add( params, 'rotate' );
+				gui.add( params, 'usePatternTexture' ).onChange( function ( value ) {
+					outlinePass.usePatternTexture = value;
+				} );
+
+				var Configuration = function () {
+					this.visibleEdgeColor = '#ffffff';
+					this.hiddenEdgeColor = '#190a05';
+				};
+
+				var conf = new Configuration();
+				gui.addColor( conf, 'visibleEdgeColor' ).onChange( function ( value ) {
+					outlinePass.visibleEdgeColor.set( value );
+				} );
+				gui.addColor( conf, 'hiddenEdgeColor' ).onChange( function ( value ) {
+					outlinePass.hiddenEdgeColor.set( value );
+				} );
 			}
 
 			function onWindowResize() {
@@ -214,12 +250,7 @@
 				particleLight.position.y = Math.cos( timer * 5 ) * 400;
 				particleLight.position.z = Math.cos( timer * 3 ) * 300;
 
-				pixelPass.uniforms[ "pixelSize" ].value = params.pixelSize;
-
 				if ( params.postprocessing ) {
-					pixelPass.enabled = params.pixelize;
-					outlinePass.enabled = params.outline;
-
 					composer.render();
 				} else {
 					renderer.render( scene, camera );
