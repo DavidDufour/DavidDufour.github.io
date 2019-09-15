@@ -170,10 +170,16 @@
 				composer.addPass( outlinePass );
 
 				params = {
+					postprocessing: true,
 					pixelize: true,
 					pixelSize: 4,
 					outline: true,
-					postprocessing: true
+					edgeStrength: 3.0,
+					edgeGlow: 0.0,
+					edgeThickness: 1.0,
+					pulsePeriod: 0,
+					rotate: false,
+					usePatternTexture: false
 				};
 
 				// GUI for editing parameters
@@ -190,7 +196,7 @@
 					outlinePass.enabled = Boolean( value );
 				} );
 				gui.add( params, 'edgeStrength', 0.01, 10 ).onChange( function ( value ) {
-				outlinePass.edgeStrength = Number( value );
+					outlinePass.edgeStrength = Number( value );
 				} );
 				gui.add( params, 'edgeGlow', 0.0, 1 ).onChange( function ( value ) {
 					outlinePass.edgeGlow = Number( value );
