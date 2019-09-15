@@ -27,8 +27,7 @@
 
 			var camera, scene, renderer, effect, gui, composer;
 			var particleLight;
-			// Pixelization
-			var pixelPass, params;
+			var pixelPass, outlinePass, params;
 
 			var loader = new THREE.FontLoader();
 			loader.load( 'fonts/gentilis_regular.typeface.json', function ( font ) {
@@ -167,10 +166,11 @@
 				pixelPass.uniforms[ "resolution" ].value.multiplyScalar( window.devicePixelRatio );
 				composer.addPass( pixelPass );
 				// Outline
-				var outlinePass = new OutlineEffect( renderer );
-				effect = composer.addPass( outlinePass );
+				outlinePass = new OutlineEffect( renderer );
+				composer.addPass( outlinePass );
 
 				params = {
+					pixelize: true,
 					pixelSize: 4,
 					outline: true,
 					postprocessing: true
@@ -215,6 +215,7 @@
 				pixelPass.uniforms[ "pixelSize" ].value = params.pixelSize;
 
 				if ( params.postprocessing ) {
+					pixelPass.enabled = params.pixelize;
 					outlinePass.enabled = params.outline;
 
 					// Pixelization
