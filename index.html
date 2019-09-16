@@ -15,9 +15,7 @@
 			import Stats from './jsm/libs/stats.module.js';
 
 			import { OrbitControls } from './jsm/controls/OrbitControls.js';
-			import { DDSLoader } from './jsm/loaders/DDSLoader.js';
-			import { MTLLoader } from './jsm/loaders/MTLLoader.js';
-			import { OBJLoader } from './jsm/loaders/OBJLoader.js';
+			import { OBJLoader } from './jsm/loaders/ThreeMFLoader.js';
 			// Pixelation post-processing
 			import { GUI } from './jsm/libs/dat.gui.module.js';
 			import { EffectComposer } from './jsm/postprocessing/EffectComposer.js';
@@ -112,35 +110,18 @@
 				} );
 
 				// Tan model
-				var manager = new THREE.LoadingManager();
-				manager.addHandler( /\.dds$/i, new DDSLoader() );
-				var loader = new MTLLoader( manager );
-				loader.load( 'models/Tan.mtl', function ( materials ) {
-					materials.preload();
-					new OBJLoader( manager )
-						.setMaterials( materials )
-						.load(
-							// resource URL
-							'models/Tan.obj',
-							// called when resource is loaded
-							function ( object ) {
-								object.traverse( function( child ) {
-								if ( child instanceof THREE.Mesh ) {
-									child.material = toonMaterial;
-								}
-							});
-								scene.add( object );
-							},
-							// called when loading is in progress
-							function ( xhr ) {
-								console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-							},
-							// called when loading has errors
-							function ( error ) {
-								console.log( 'An error happened' );
-							}
-						);
-				});
+				var loader = new ThreeMFLoader();
+				loader.load( 'models/Tan.3mf', function ( object ) {
+					// object.quaternion.setFromEuler( new THREE.Euler( - Math.PI / 2, 0, 0 ) ); 	// z-up conversion
+					object.traverse( function ( child ) {
+						child.castShadow = true;
+						// if ( child instanceof THREE.Mesh ) {
+						// 	child.material = toonMaterial;
+						// }
+					} );
+					scene.add( object );
+				} );
+
 				// GUI for editing parameters
 				params = {
 					postprocessing: true,
