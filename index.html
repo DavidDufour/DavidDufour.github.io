@@ -88,9 +88,9 @@
 				pixelPass.uniforms[ "resolution" ].value.multiplyScalar( window.devicePixelRatio );
 				pixelPass.uniforms[ "pixelSize" ].value = 4;
 				composer.addPass( pixelPass );
+
 				// Outline
 				outlinePass = new OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), scene, camera );
-
 				composer.addPass( outlinePass );
 
 				// Toon material
@@ -111,11 +111,14 @@
 				} );
 
 				// Tan model
+				var tanMesh;
 				var loader = new ThreeMFLoader();
 				loader.load( 'models/Tan.3mf', function ( object ) {
 					object.traverse( function ( child ) {
 						child.castShadow = true;
 						if ( child instanceof THREE.Mesh ) {
+							console.log("Mesh found!");
+							tanMesh = child;
 							child.material = toonMaterial;
 						}
 					} );
@@ -127,6 +130,9 @@
 					postprocessing: true,
 					pixelize: true,
 					pixelSize: 4,
+					alpha: 0.5,
+					beta: 0.5,
+					gamma: 0.5,
 					outline: true,
 					edgeStrength: 3.0,
 					edgeGlow: 0.0,
@@ -142,6 +148,38 @@
 				gui.add( params, 'pixelSize' ).min( 2 ).max( 32 ).step( 2 ).onChange( function ( value ) {
 					pixelPass.uniforms[ "pixelSize" ].value = params.pixelSize;
 				} );
+
+				gui.add( params, 'alpha' ).min( 0 ).max( 1 ).step( 0.1 ).onChange( function ( value ) {
+					tanMesh.material =  new THREE.MeshToonMaterial( {
+						gradientMap: threeTone,
+						bumpScale: 1,
+						color:  new THREE.Color().setHSL( alpha, 0.5, gamma * 0.5 + 0.1 ).multiplyScalar( 1 - beta * 0.2 ),
+						specular: new THREE.Color( beta * 0.2, beta * 0.2, beta * 0.2 ),
+						reflectivity: beta,
+						shininess: Math.pow( 2, alpha * 10 )
+					} );
+				} );
+				gui.add( params, 'beta' ).min( 0 ).max( 1 ).step( 0.1 ).onChange( function ( value ) {
+					tanMesh.material =  new THREE.MeshToonMaterial( {
+						gradientMap: threeTone,
+						bumpScale: 1,
+						color:  new THREE.Color().setHSL( alpha, 0.5, gamma * 0.5 + 0.1 ).multiplyScalar( 1 - beta * 0.2 ),
+						specular: new THREE.Color( beta * 0.2, beta * 0.2, beta * 0.2 ),
+						reflectivity: beta,
+						shininess: Math.pow( 2, alpha * 10 )
+					} );
+				} );
+				gui.add( params, 'gamma' ).min( 0 ).max( 1 ).step( 0.1 ).onChange( function ( value ) {
+					tanMesh.material =  new THREE.MeshToonMaterial( {
+						gradientMap: threeTone,
+						bumpScale: 1,
+						color:  new THREE.Color().setHSL( alpha, 0.5, gamma * 0.5 + 0.1 ).multiplyScalar( 1 - beta * 0.2 ),
+						specular: new THREE.Color( beta * 0.2, beta * 0.2, beta * 0.2 ),
+						reflectivity: beta,
+						shininess: Math.pow( 2, alpha * 10 )
+					} );
+				} );
+
 				gui.add( params, 'outline' ).onChange( function ( value ) {
 					outlinePass.enabled = Boolean( value );
 				} );
