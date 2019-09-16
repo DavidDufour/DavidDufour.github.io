@@ -116,11 +116,11 @@
 				loader.load( 'models/Tan.3mf', function ( object ) {
 					object.traverse( function ( child ) {
 						child.castShadow = true;
-						console.log("child found!")
+						console.log("child found! " + child.name)
+							child.material = toonMaterial;
+							tanMesh = child;
 						if ( child instanceof THREE.Mesh ) {
 							console.log("Mesh found!");
-							tanMesh = child;
-							child.material = toonMaterial;
 						}
 					} );
 					scene.add( object );
