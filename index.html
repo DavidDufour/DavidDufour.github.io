@@ -18,7 +18,6 @@
 			import { DDSLoader } from './jsm/loaders/DDSLoader.js';
 			import { MTLLoader } from './jsm/loaders/MTLLoader.js';
 			import { OBJLoader } from './jsm/loaders/OBJLoader.js';
-			import { TextureLoader } from './jsm/loaders/TextureLoader.js';
 			// Pixelation post-processing
 			import { GUI } from './jsm/libs/dat.gui.module.js';
 			import { EffectComposer } from './jsm/postprocessing/EffectComposer.js';
@@ -96,7 +95,7 @@
 				composer.addPass( outlinePass );
 
 				// Toon material
-				var threeTone = new TextureLoader().load( 'textures/threeTone.jpg' );
+				var threeTone = new THREE.TextureLoader().load( 'textures/threeTone.jpg' );
 				threeTone.minFilter = NearestFilter;
 				threeTone.magFilter = NearestFilter;
 
