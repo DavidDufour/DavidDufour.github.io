@@ -15,7 +15,9 @@
 			import Stats from './jsm/libs/stats.module.js';
 
 			import { OrbitControls } from './jsm/controls/OrbitControls.js';
-			import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
+			import { DDSLoader } from './jsm/loaders/DDSLoader.js';
+			import { MTLLoader } from './jsm/loaders/MTLLoader.js';
+			import { OBJLoader } from './jsm/loaders/OBJLoader.js';
 			// Pixelation post-processing
 			import { GUI } from './jsm/libs/dat.gui.module.js';
 			import { EffectComposer } from './jsm/postprocessing/EffectComposer.js';
@@ -93,23 +95,29 @@
 				composer.addPass( outlinePass );
 
 				// Tan model
-				var loader = new GLTFLoader();
-				loader.load(
-					// resource URL
-					'models/Tan.glb',
-					// called when resource is loaded
-					function ( object ) {
-						scene.add( object.scene );
-					},
-					// called when loading is in progress
-					function ( xhr ) {
-						console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-					},
-					// called when loading has errors
-					function ( error ) {
-						console.log( 'An error happened' );
-					}
-				);
+				var manager = new THREE.LoadingManager();
+				manager.addHandler( /\.dds$/i, new DDSLoader() );
+				var loader = new MTLLoader( manager );
+				loader.load( 'models/Tan.mtl', function ( materials ) {
+					materials.preload();
+					new OBJLoader( manager )
+						.setMaterials( materials )
+						.load(
+							// resource URL
+							'models/Tan.obj',
+							// called when resource is loaded
+							function ( object ) {
+								scene.add( object );
+							},
+							// called when loading is in progress
+							function ( xhr ) {
+								console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+							},
+							// called when loading has errors
+							function ( error ) {
+								console.log( 'An error happened' );
+							}
+						);
 
 				// GUI for editing parameters
 				params = {
