@@ -116,6 +116,7 @@
 				loader.load( 'models/Tan.3mf', function ( object ) {
 					object.traverse( function ( child ) {
 						child.castShadow = true;
+						console.log("child found!")
 						if ( child instanceof THREE.Mesh ) {
 							console.log("Mesh found!");
 							tanMesh = child;
