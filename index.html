@@ -94,6 +94,24 @@
 
 				composer.addPass( outlinePass );
 
+				// Toon material
+				var threeTone = textureLoader.load( 'textures/threeTone.jpg' );
+				threeTone.minFilter = NearestFilter;
+				threeTone.magFilter = NearestFilter;
+
+				var alpha = 0.5;
+				var beta = 0.5;
+				var gamma = 0.5;
+				var toonMaterial = new THREE.MeshToonMaterial( {
+					gradientMap: threeTone,
+					bumpScale: 1,
+					color:  new THREE.Color().setHSL( alpha, 0.5, gamma * 0.5 + 0.1 ).multiplyScalar( 1 - beta * 0.2 ),
+					specular: new THREE.Color( beta * 0.2, beta * 0.2, beta * 0.2 ),
+					reflectivity: beta,
+					shininess: Math.pow( 2, alpha * 10 ),
+					envMap: alphaIndex % 2 === 0 ? null : reflectionCube
+				} );
+
 				// Tan model
 				var manager = new THREE.LoadingManager();
 				manager.addHandler( /\.dds$/i, new DDSLoader() );
@@ -107,6 +125,11 @@
 							'models/Tan.obj',
 							// called when resource is loaded
 							function ( object ) {
+								object.traverse( function( child ) {
+								if ( child instanceof THREE.Mesh ) {
+									child.material = toonMaterial;
+								}
+							});
 								scene.add( object );
 							},
 							// called when loading is in progress
@@ -119,7 +142,6 @@
 							}
 						);
 				});
-
 				// GUI for editing parameters
 				params = {
 					postprocessing: true,
