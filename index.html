@@ -74,71 +74,74 @@
 				directionalLight.position.set( 1, 1, 1 ).normalize();
 				scene.add( directionalLight );
 
-				particleLight = new THREE.Mesh( new THREE.SphereBufferGeometry( 4, 8, 8 ), new THREE.MeshBasicMaterial( { color: 0xffffff } ) );
-				scene.add( particleLight );
+				// particleLight = new THREE.Mesh( new THREE.SphereBufferGeometry( 4, 8, 8 ), new THREE.MeshBasicMaterial( { color: 0xffffff } ) );
+				// scene.add( particleLight );
 
-				var pointLight = new THREE.PointLight( 0xffffff, 2, 800 );
-				particleLight.add( pointLight );
+				// var pointLight = new THREE.PointLight( 0xffffff, 2, 800 );
+				// particleLight.add( pointLight );
 
-				// Pixelization
+				// Post processing
 				composer = new EffectComposer( renderer );
 				composer.addPass( new RenderPass( scene, camera ) );
+
+				// Outline
+				outlinePass = new OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), scene, camera );
+				composer.addPass( outlinePass );
+
+				// Pixelization
 				pixelPass = new ShaderPass( PixelShader );
 				pixelPass.uniforms[ "resolution" ].value = new THREE.Vector2( window.innerWidth, window.innerHeight );
 				pixelPass.uniforms[ "resolution" ].value.multiplyScalar( window.devicePixelRatio );
 				pixelPass.uniforms[ "pixelSize" ].value = 4;
 				composer.addPass( pixelPass );
 
-				// Outline
-				outlinePass = new OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), scene, camera );
-				composer.addPass( outlinePass );
-
-				// Toon material
-				var threeTone = new THREE.TextureLoader().load( 'textures/threeTone.jpg' );
-				threeTone.minFilter = THREE.NearestFilter;
-				threeTone.magFilter = THREE.NearestFilter;
-
-				var alpha = 0.5;
-				var beta = 0.5;
-				var gamma = 0.5;
-				var toonMaterial = new THREE.MeshToonMaterial( {
-					gradientMap: threeTone,
-					bumpScale: 1,
-					color:  new THREE.Color().setHSL( alpha, 0.5, gamma * 0.5 + 0.1 ).multiplyScalar( 1 - beta * 0.2 ),
-					specular: new THREE.Color( beta * 0.2, beta * 0.2, beta * 0.2 ),
-					reflectivity: beta,
-					shininess: Math.pow( 2, alpha * 10 )
-				} );
-
-				// Tan model
-				var tanMesh;
-				var loader = new ThreeMFLoader();
-				loader.load( 'models/Tan.3mf', function ( object ) {
-					object.traverse( function ( child ) {
-						child.castShadow = true;
-						console.log("child found! " + child)
-						if ( child instanceof THREE.Object3D ) {
-							console.log("Mesh found!");
-							child.material = toonMaterial;
-							tanMesh = child;
-						}
-					} );
-					scene.add( object );
-				} );
-
 				// GUI for editing parameters
 				params = {
 					postprocessing: true,
 					pixelize: true,
 					pixelSize: 4,
-					alpha: 0.5,
+					alpha: 0.0,
 					beta: 0.5,
 					gamma: 0.5,
 					outline: true,
-					edgeStrength: 3.0,
+					edgeStrength: 10.0,
 					edgeGlow: 0.0,
 					edgeThickness: 1.0
 				};
+
+				// Toon material
+				var threeTone = new THREE.TextureLoader().load( 'textures/threeTone.jpg' );
+				threeTone.minFilter = THREE.NearestFilter;
+				threeTone.magFilter = THREE.NearestFilter;
+				var toonMaterial = new THREE.MeshToonMaterial( {
+					gradientMap: threeTone,
+					bumpScale: 1,
+					color:  new THREE.Color().setHSL( params.alpha, 0.5, params.gamma * 0.5 + 0.1 ).multiplyScalar( 1 - params.beta * 0.2 ),
+					specular: new THREE.Color( params.beta * 0.2, params.beta * 0.2, params.beta * 0.2 ),
+					reflectivity: params.beta,
+					shininess: Math.pow( 2, params.alpha * 10 )
+				} );
+
+				// Tan model
+				var geometry = new THREE.TorusKnotBufferGeometry( 10, 3, 100, 16 );
+				geometry = geometry.toNonIndexed();
+				generateVertexColors( geometry );
+
+				function generateVertexColors( geometry ) {
+					var positionAttribute = geometry.attributes.position;
+					var colors = [];
+					var color = new THREE.Color();
+					for ( var i = 0, il = positionAttribute.count; i < il; i ++ ) {
+						color.setHSL( i / il * Math.random(), 0.5, 0.5 );
+						colors.push( color.r, color.g, color.b );
+					}
+					geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+				}
+
+				var tanMesh = new THREE.Mesh( geometry, toonMaterial );
+				scene.add( tanMesh );
+				// Outline
+				outlinePass.selectedObjects = [tanMesh];
 
 				gui = new GUI();
 				
@@ -151,34 +154,20 @@
 				} );
 
 				gui.add( params, 'alpha' ).min( 0 ).max( 1 ).step( 0.1 ).onChange( function ( value ) {
-					tanMesh.material =  new THREE.MeshToonMaterial( {
-						gradientMap: threeTone,
-						bumpScale: 1,
-						color:  new THREE.Color().setHSL( alpha, 0.5, gamma * 0.5 + 0.1 ).multiplyScalar( 1 - beta * 0.2 ),
-						specular: new THREE.Color( beta * 0.2, beta * 0.2, beta * 0.2 ),
-						reflectivity: beta,
-						shininess: Math.pow( 2, alpha * 10 )
-					} );
+					params.alpha = value;
+					tanMesh.material.color = new THREE.Color().setHSL( params.alpha, 0.5, params.gamma * 0.5 + 0.1 ).multiplyScalar( 1 - params.beta * 0.2 );
+					tanMesh.material.specular = new THREE.Color( params.beta * 0.2, params.beta * 0.2, params.beta * 0.2 );
+					tanMesh.material.shininess = Math.pow( 2, params.alpha * 10 );
 				} );
 				gui.add( params, 'beta' ).min( 0 ).max( 1 ).step( 0.1 ).onChange( function ( value ) {
-					tanMesh.material =  new THREE.MeshToonMaterial( {
-						gradientMap: threeTone,
-						bumpScale: 1,
-						color:  new THREE.Color().setHSL( alpha, 0.5, gamma * 0.5 + 0.1 ).multiplyScalar( 1 - beta * 0.2 ),
-						specular: new THREE.Color( beta * 0.2, beta * 0.2, beta * 0.2 ),
-						reflectivity: beta,
-						shininess: Math.pow( 2, alpha * 10 )
-					} );
+					params.beta = value;
+					tanMesh.material.color =  new THREE.Color().setHSL( params.alpha, 0.5, params.gamma * 0.5 + 0.1 ).multiplyScalar( 1 - params.beta * 0.2 );
+					tanMesh.material.specular = new THREE.Color( params.beta * 0.2, params.beta * 0.2, params.beta * 0.2 );
+					tanMesh.material.reflectivity = params.beta;
 				} );
 				gui.add( params, 'gamma' ).min( 0 ).max( 1 ).step( 0.1 ).onChange( function ( value ) {
-					tanMesh.material =  new THREE.MeshToonMaterial( {
-						gradientMap: threeTone,
-						bumpScale: 1,
-						color:  new THREE.Color().setHSL( alpha, 0.5, gamma * 0.5 + 0.1 ).multiplyScalar( 1 - beta * 0.2 ),
-						specular: new THREE.Color( beta * 0.2, beta * 0.2, beta * 0.2 ),
-						reflectivity: beta,
-						shininess: Math.pow( 2, alpha * 10 )
-					} );
+					params.gamma = value;
+					tanMesh.material.color =  new THREE.Color().setHSL( params.alpha, 0.5, params.gamma * 0.5 + 0.1 ).multiplyScalar( 1 - params.beta * 0.2 )
 				} );
 
 				gui.add( params, 'outline' ).onChange( function ( value ) {
@@ -212,6 +201,7 @@
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
 				renderer.setSize( window.innerWidth, window.innerHeight );
+				composer.setSize( window.innerWidth, window.innerHeight );
 
 				// Pixelization
 				pixelPass.uniforms[ "resolution" ].value.set( window.innerWidth, window.innerHeight ).multiplyScalar( window.devicePixelRatio );
@@ -234,9 +224,9 @@
 				camera.lookAt( scene.position );
 
 				// Changes the location of the moving light
-				particleLight.position.x = Math.sin( timer * 7 ) * 300;
-				particleLight.position.y = Math.cos( timer * 5 ) * 400;
-				particleLight.position.z = Math.cos( timer * 3 ) * 300;
+				// particleLight.position.x = Math.sin( timer * 7 ) * 300;
+				// particleLight.position.y = Math.cos( timer * 5 ) * 400;
+				// particleLight.position.z = Math.cos( timer * 3 ) * 300;
 
 				if ( params.postprocessing ) {
 					composer.render();
