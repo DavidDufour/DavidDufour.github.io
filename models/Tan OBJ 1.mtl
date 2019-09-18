@@ -1,0 +1,30 @@
+# MTL
+
+newmtl Hair_mtl
+	map_Kd Tan OBJ 1_Hair.png
+
+
+newmtl Armour_mtl
+	map_Kd Tan OBJ 1_Armour.png
+
+
+newmtl Gold_mtl
+	map_Kd Tan OBJ 1_Gold.png
+
+
+newmtl Pants_mtl
+	map_Kd Tan OBJ 1_Pants.png
+
+
+newmtl Skin_mtl
+	map_Kd Tan OBJ 1_Skin.png
+
+
+newmtl Layer_1_mtl
+	map_Kd Tan OBJ 1_Layer_1.png
+
+
+newmtl Layer_2_mtl
+	map_Kd Tan OBJ 1_Layer_2.png
+
+
