@@ -134,19 +134,19 @@
 				} );
 
 				// Tan models
-				var loader = new OBJLoader();
-				loader.load( 'models/Tan OBJ 10.obj',
-					function( object ){
-						object.traverse( function( child ) {
+				var objLoader = new OBJLoader();
+				objLoader.load( 'models/Tan OBJ 10.obj',
+					function( obj ){
+						obj.traverse( function( child ) {
 							if ( child.isMesh ) {
 								//child.material = toonMaterial;
 							}
 						} );
-						scene.add( object );
-						outlinePass.selectedObjects.push(object);
-						object.translateX( -50 );
-						object.rotateX(THREE.Math.degToRad(-90));
-						object.rotateZ(THREE.Math.degToRad(-90));
+						scene.add( obj );
+						outlinePass.selectedObjects.push(obj);
+						obj.translateX( -50 );
+						obj.rotateX(THREE.Math.degToRad(-90));
+						obj.rotateZ(THREE.Math.degToRad(-90));
 					},
 					function( xhr ){
 						console.log( (xhr.loaded / xhr.total * 100) + "% loaded")
@@ -157,10 +157,10 @@
 				);
 
 				var tanMesh;
-				var loader = new FBXLoader();
-				loader.load( 'models/Tan FBX 10.fbx',
-					function( object ){
-						object.traverse( 
+				var fbxLoader = new FBXLoader();
+				fbxLoader.load( 'models/Tan FBX 10.fbx',
+					function( fbx ){
+						fbx.traverse( 
 							function( child ) {
 								if ( child.isMesh ) {
 									tanMesh = child;
@@ -175,11 +175,11 @@
 									child.material.bumpMap = bmpTexture;
 								}
 							} );
-							scene.add( object );
-							outlinePass.selectedObjects.push(object);
-							object.translateX( 50 );
-							object.rotateX(THREE.Math.degToRad(-90));
-							object.rotateZ(THREE.Math.degToRad(-90));
+							scene.add( fbx );
+							outlinePass.selectedObjects.push(fbx);
+							fbx.translateX( 50 );
+							fbx.rotateX(THREE.Math.degToRad(-90));
+							fbx.rotateZ(THREE.Math.degToRad(-90));
 						},
 						function( xhr ){
 							console.log( (xhr.loaded / xhr.total * 100) + "% loaded")
@@ -189,6 +189,31 @@
 						}
 					);
 
+				// Horse skeleton model
+				var gltfLoader = new GLTFLoader();
+				gltfLoader.load('models/horse.gltf', function ( gltf ) {
+						scene.add( gltf.scene );
+						outlinePass.selectedObjects.push( gltf.scene );
+						gltf.scene.traverse(function (child) {
+								if (child.isMesh) {
+									child.castShadow = true;
+									child.receiveShadow = true;
+								}
+							});
+						gltf.scene.position.x += 120;
+						gltf.scene.position.y -= 5;
+						gltf.scene.scale.set(30,30,30)
+					},
+					// called while loading is progressing
+					function ( xhr ) {
+						console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+					},
+					// called when loading has errors
+					function ( error ) {
+						console.log( 'An error happened', error );
+					}
+				);
+					
 				gui = new GUI();
 				gui.add( params, 'postprocessing' );
 
