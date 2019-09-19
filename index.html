@@ -92,6 +92,7 @@
 				outlinePass.edgeStrength = 10;
 				outlinePass.edgeGlow = 0;
 				outlinePass.edgeThickness = 4;
+				outlinePass.selectedObjects = [];
 				composer.addPass( outlinePass );
 
 				// Pixelization
@@ -106,56 +107,31 @@
 					postprocessing: true,
 					pixelize: true,
 					pixelSize: 8,
-					alpha: 0.0,
-					beta: 0.0,
-					gamma: 0.0,
-					outline: false,
+					gradientMap: 'fourTone',
+					specular: '#111111',
+					reflectivity: 0.2,
+					shininess: 0.0,
+					outline: true,
 					edgeStrength: 10,
 					edgeGlow: 0.0,
-					edgeThickness: 1
+					edgeThickness: 1,
+					visibleEdgeColor: '#ffffff',
+					hiddenEdgeColor: '#000000'
 				};
 
 				// Toon material
 				var threeTone = new THREE.TextureLoader().load( 'textures/threeTone.jpg' );
-				threeTone.minFilter = THREE.NearestFilter;
-				threeTone.magFilter = THREE.NearestFilter;
+				var fourTone = new THREE.TextureLoader().load( 'textures/fourTone.jpg' );
+				var fiveTone = new THREE.TextureLoader().load( 'textures/fiveTone.jpg' );
+				var sixTone = new THREE.TextureLoader().load( 'textures/sixTone.jpg' );
+				threeTone.minFilter = fourTone.minFilter = fiveTone.minFilter = sixTone.minFilter = THREE.NearestFilter;
+				threeTone.magFilter = fourTone.magFilter = fiveTone.magFilter = sixTone.magFilter = THREE.NearestFilter;
 				var toonMaterial = new THREE.MeshToonMaterial( {
-					gradientMap: threeTone,
-					bumpScale: 1,
-					//color:  new THREE.Color().setHSL( params.alpha, 0.5, params.gamma * 0.5 + 0.1 ).multiplyScalar( 1 - params.beta * 0.2 ),
-					specular: new THREE.Color( params.beta * 0.2, params.beta * 0.2, params.beta * 0.2 ),
-					reflectivity: params.beta,
-					shininess: Math.pow( 2, params.alpha * 10 )
+					gradientMap: fourTone,
+					specular: '#111111',
+					reflectivity: 0.2,
+					shininess: 0
 				} );
-
-				// City
-				// const gltfLoader = new GLTFLoader();
-				// gltfLoader.load('models/scene.gltf', (gltf) => {
-				// 	const root = gltf.scene;
-				// 	scene.add(root);
-				// });
-
-				//Torus
-				// var geometry = new THREE.TorusKnotBufferGeometry( 10, 3, 100, 16 );
-				// geometry = geometry.toNonIndexed();
-				// generateVertexColors( geometry );
-
-				// function generateVertexColors( geometry ) {
-				// 	var positionAttribute = geometry.attributes.position;
-				// 	var colors = [];
-				// 	var color = new THREE.Color();
-				// 	for ( var i = 0, il = positionAttribute.count; i < il; i ++ ) {
-				// 		color.setHSL( i / il * Math.random(), 0.5, 0.5 );
-				// 		colors.push( color.r, color.g, color.b );
-				// 	}
-				// 	geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
-				// }
-				
-				// var torusMesh = new THREE.Mesh( geometry, toonMaterial );
-				// scene.add( torusMesh );
-
-				// Outline
-				outlinePass.selectedObjects = [];
 
 				// Tan models
 				var loader = new OBJLoader();
@@ -214,55 +190,47 @@
 					);
 
 				gui = new GUI();
-				
 				gui.add( params, 'postprocessing' );
-				gui.add( params, 'pixelize' ).onChange( function ( value ) {
+
+				var folder = gui.addFolder( 'Cell Shading' );
+				folder.add( params, 'gradientMap', ['threeTone', 'fourTone', 'fiveTone', 'sixTone'] ).onChange( function (value) {
+					toonMaterial.gradientMap = eval(value);
+				} );
+				folder.addColor( params, 'specular' ).onChange( function ( value ) {
+					tanMesh.material.specular.set( value );
+				} );
+				folder.add( params, 'shininess' ).min( 0 ).max( 256 ).step( 1 ).onChange( function ( value ) {
+					tanMesh.material.shininess = value;
+				} );
+				folder.add( params, 'reflectivity' ).min( 0 ).max( 1 ).step( 0.1 ).onChange( function ( value ) {
+					tanMesh.material.reflectivity = value;
+				} );
+
+				folder = gui.addFolder( 'Pixel Art' );
+				folder.add( params, 'pixelize' ).onChange( function ( value ) {
 					pixelPass.enabled = Boolean( value );
 				} );
-				gui.add( params, 'pixelSize' ).min( 2 ).max( 32 ).step( 2 ).onChange( function ( value ) {
+				folder.add( params, 'pixelSize' ).min( 2 ).max( 32 ).step( 2 ).onChange( function ( value ) {
 					pixelPass.uniforms[ "pixelSize" ].value = params.pixelSize;
 				} );
 
-				gui.add( params, 'alpha' ).min( 0 ).max( 1 ).step( 0.1 ).onChange( function ( value ) {
-					params.alpha = value;
-					//tanMesh.material.color = new THREE.Color().setHSL( params.alpha, 0.5, params.gamma * 0.5 + 0.1 ).multiplyScalar( 1 - params.beta * 0.2 );
-					tanMesh.material.specular = new THREE.Color( params.beta * 0.2, params.beta * 0.2, params.beta * 0.2 );
-					tanMesh.material.shininess = Math.pow( 2, params.alpha * 10 );
-				} );
-				gui.add( params, 'beta' ).min( 0 ).max( 1 ).step( 0.1 ).onChange( function ( value ) {
-					params.beta = value;
-					//tanMesh.material.color =  new THREE.Color().setHSL( params.alpha, 0.5, params.gamma * 0.5 + 0.1 ).multiplyScalar( 1 - params.beta * 0.2 );
-					tanMesh.material.specular = new THREE.Color( params.beta * 0.2, params.beta * 0.2, params.beta * 0.2 );
-					tanMesh.material.reflectivity = params.beta;
-				} );
-				gui.add( params, 'gamma' ).min( 0 ).max( 1 ).step( 0.1 ).onChange( function ( value ) {
-					params.gamma = value;
-					//tanMesh.material.color =  new THREE.Color().setHSL( params.alpha, 0.5, params.gamma * 0.5 + 0.1 ).multiplyScalar( 1 - params.beta * 0.2 )
-				} );
-
-				gui.add( params, 'outline' ).onChange( function ( value ) {
+				folder = gui.addFolder( 'Outline' );
+				folder.add( params, 'outline' ).onChange( function ( value ) {
 					outlinePass.enabled = Boolean( value );
 				} );
-				gui.add( params, 'edgeStrength', 0.01, 10 ).onChange( function ( value ) {
+				folder.add( params, 'edgeStrength', 0.01, 10 ).onChange( function ( value ) {
 					outlinePass.edgeStrength = Number( value );
 				} );
-				gui.add( params, 'edgeGlow', 0.0, 1 ).onChange( function ( value ) {
+				folder.add( params, 'edgeGlow', 0.0, 1 ).onChange( function ( value ) {
 					outlinePass.edgeGlow = Number( value );
 				} );
-				gui.add( params, 'edgeThickness', 1, 4 ).onChange( function ( value ) {
+				folder.add( params, 'edgeThickness', 1, 4 ).onChange( function ( value ) {
 					outlinePass.edgeThickness = Number( value );
 				} );
-
-				var Configuration = function () {
-					this.visibleEdgeColor = '#ffffff';
-					this.hiddenEdgeColor = '#000000';
-				};
-
-				var conf = new Configuration();
-				gui.addColor( conf, 'visibleEdgeColor' ).onChange( function ( value ) {
+				folder.addColor( params, 'visibleEdgeColor' ).onChange( function ( value ) {
 					outlinePass.visibleEdgeColor.set( value );
 				} );
-				gui.addColor( conf, 'hiddenEdgeColor' ).onChange( function ( value ) {
+				folder.addColor( params, 'hiddenEdgeColor' ).onChange( function ( value ) {
 					outlinePass.hiddenEdgeColor.set( value );
 				} );
 			}
