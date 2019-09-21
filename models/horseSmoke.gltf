@@ -1,0 +1,358 @@
+{
+  "accessors": [
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 964,
+      "max": [
+        0.38097840547561646,
+        -3.1468384265899658,
+        2.869464635848999
+      ],
+      "min": [
+        -0.38097840547561646,
+        -3.3199717998504639,
+        2.738783597946167
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 11568,
+      "componentType": 5126,
+      "count": 964,
+      "max": [
+        1,
+        0.9848664402961731,
+        1
+      ],
+      "min": [
+        -1,
+        -0.99916887283325195,
+        -1
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 0,
+      "componentType": 5125,
+      "count": 5760,
+      "max": [
+        963
+      ],
+      "min": [
+        0
+      ],
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 23136,
+      "componentType": 5126,
+      "count": 65532,
+      "max": [
+        1.2388229370117188,
+        4.7926082611083984,
+        5.4689774513244629
+      ],
+      "min": [
+        -1.1438384056091309,
+        -6.1126303672790527,
+        -5.532111644744873
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 809520,
+      "componentType": 5126,
+      "count": 65532,
+      "max": [
+        0.999991774559021,
+        0.99998295307159424,
+        0.9999237060546875
+      ],
+      "min": [
+        -0.99999690055847168,
+        -0.99999535083770752,
+        -1
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 23040,
+      "componentType": 5125,
+      "count": 355782,
+      "max": [
+        65531
+      ],
+      "min": [
+        0
+      ],
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 1595904,
+      "componentType": 5126,
+      "count": 49449,
+      "max": [
+        1.2415957450866699,
+        5.6636462211608887,
+        5.4689774513244629
+      ],
+      "min": [
+        -1.2418855428695679,
+        -6.1126303672790527,
+        -5.5285263061523438
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 2189292,
+      "componentType": 5126,
+      "count": 49449,
+      "max": [
+        0.99999618530273438,
+        0.99998891353607178,
+        0.99991941452026367
+      ],
+      "min": [
+        -0.99999761581420898,
+        -0.99999535083770752,
+        -0.99999701976776123
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 1446168,
+      "componentType": 5125,
+      "count": 250320,
+      "max": [
+        49448
+      ],
+      "min": [
+        0
+      ],
+      "type": "SCALAR"
+    }
+  ],
+  "asset": {
+    "extras": {
+      "author": "Eqart3d (https://sketchfab.com/nini.zagarpajer)",
+      "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+      "source": "https://sketchfab.com/3d-models/young-horse-ecdcd3f9498a4431a1e086873d69c605",
+      "title": "Young horse"
+    },
+    "generator": "Sketchfab-5.86.0",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 2447448,
+      "byteOffset": 0,
+      "name": "floatBufferViews",
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 2782680,
+      "byteOffset": 2447448,
+      "byteStride": 12,
+      "name": "floatBufferViews",
+      "target": 34962
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 5230128,
+      "uri": "horseSmoke.bin"
+    }
+  ],
+  "materials": [
+    {
+      "doubleSided": true,
+      "name": "Material",
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          0.19802327142925605,
+          0.18688575429761914,
+          0.18688575429761914,
+          1
+        ],
+        "metallicFactor": 0,
+        "roughnessFactor": 0.69004188393646815
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "name": "eyes_Material_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 1,
+            "POSITION": 0
+          },
+          "indices": 2,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "H-sculpt_Material_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 4,
+            "POSITION": 3
+          },
+          "indices": 5,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "H-sculpt_Material_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 7,
+            "POSITION": 6
+          },
+          "indices": 8,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "children": [
+        1
+      ],
+      "name": "RootNode (gltf orientation matrix)",
+      "rotation": [
+        -0.70710678118654746,
+        -0,
+        -0,
+        0.70710678118654757
+      ]
+    },
+    {
+      "children": [
+        2
+      ],
+      "name": "RootNode (model correction matrix)"
+    },
+    {
+      "children": [
+        3
+      ],
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "name": "c9de855077924951b3324a0eaa7483ec.fbx"
+    },
+    {
+      "children": [
+        4,
+        6
+      ],
+      "name": "RootNode"
+    },
+    {
+      "children": [
+        5
+      ],
+      "matrix": [
+        100,
+        0,
+        0,
+        0,
+        0,
+        -1.6292067939183141e-05,
+        -99.999999999998678,
+        0,
+        0,
+        99.999999999998678,
+        -1.6292067939183141e-05,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "name": "eyes"
+    },
+    {
+      "mesh": 0,
+      "name": "eyes_Material_0"
+    },
+    {
+      "children": [
+        7,
+        8
+      ],
+      "matrix": [
+        69.155357360839844,
+        0,
+        0,
+        0,
+        -0,
+        -1.1266837804812917e-05,
+        -69.155357360838934,
+        0,
+        0,
+        69.155357360838934,
+        -1.1266837804812917e-05,
+        0,
+        -9.7751851058092143e-08,
+        -11.721827507019043,
+        0.44386833906173706,
+        1
+      ],
+      "name": "H-sculpt"
+    },
+    {
+      "mesh": 1,
+      "name": "H-sculpt_Material_0"
+    },
+    {
+      "mesh": 2,
+      "name": "H-sculpt_Material_0"
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "OSG_Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ]
+}
+

@@ -8,30 +8,41 @@
 	</head>
 	<body>
 		<div id="container"></div>
-		<div id="info"><a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - Toon Material Variantions with OutlineEffect</div>
+		<div id="info">
+			<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a>
+				- Pixelization and Cel Shading Demo<div>
+			<a href="https://sketchfab.com/3d-models/horse-skeleton-eaca504567604e879b8ab2cf2763025e" target="_blank" rel="noopener">Horse Skeleton</a>
+				- by Diego Luján García</div>
+			<a href="https://sketchfab.com/3d-models/young-horse-ecdcd3f9498a4431a1e086873d69c605" target="_blank" rel="noopener">Young horse</a>
+				- by Eqart3d</div></div>
+		
   
 		<script src="./build/three.min.js"></script>
 		<script src="./jsm/libs/jszip.min.js"></script>
 		<script type="module">
-			import Stats from './jsm/libs/stats.module.js';
+			import Stats from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/libs/stats.module.js';
 
-			import { OrbitControls } from './jsm/controls/OrbitControls.js';
-			import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
-			import { FBXLoader } from './jsm/loaders/FBXLoader.js';
-			import { OBJLoader } from './jsm/loaders/OBJLoader.js';
+			import { OrbitControls } from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/controls/OrbitControls.js';
+			import { GLTFLoader } from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/loaders/GLTFLoader.js';
+			import { FBXLoader } from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/loaders/FBXLoader.js';
+			import { OBJLoader } from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/loaders/OBJLoader.js';
 			// Pixelation post-processing
-			import { GUI } from './jsm/libs/dat.gui.module.js';
-			import { EffectComposer } from './jsm/postprocessing/EffectComposer.js';
-			import { RenderPass } from './jsm/postprocessing/RenderPass.js';
-			import { ShaderPass } from './jsm/postprocessing/ShaderPass.js';
-			import { OutlinePass } from './jsm/postprocessing/OutlinePass.js';
-			import { PixelShader } from './jsm/shaders/PixelShader.js';
+			import { GUI } from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/libs/dat.gui.module.js';
+			import { EffectComposer } from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/postprocessing/EffectComposer.js';
+			import { RenderPass } from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/postprocessing/RenderPass.js';
+			import { ShaderPass } from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/postprocessing/ShaderPass.js';
+			import { OutlinePass } from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/postprocessing/OutlinePass.js';
+			import { PixelShader } from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/shaders/PixelShader.js';
+			// Smoke
+			import { Fire } from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/objects/Fire.js';
 
 			var container, stats;
 
 			var camera, scene, renderer, effect, gui, composer;
 			var particleLight;
 			var pixelPass, outlinePass, params;
+			var smoke;
+			var horseGeometry = new THREE.Geometry();
 
 			var loader = new THREE.FontLoader();
 			loader.load( 'fonts/gentilis_regular.typeface.json', function ( font ) {
@@ -45,18 +56,22 @@
 
 				// Scene
 				scene = new THREE.Scene();
+				scene.background = new THREE.Color( 0x111111 );
 
 				// Camera
 				camera = new THREE.PerspectiveCamera( 10, window.innerWidth / window.innerHeight, 1, 2000 );
 				camera.position.set( 0.0, 400, 400 * 3.5 );
 
 				// WebGL renderer
-				renderer = new THREE.WebGLRenderer( { antialias: false } );
+				renderer = new THREE.WebGLRenderer( { antialias: false, alpha: true } );
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.autoClear = false;
+				// renderer.setClearColor( 0x000000 );
+				// renderer.setClearAlpha( 0.0 );
+				// renderer.gammaInput = true;
+				// renderer.gammaOutput = true;
 				container.appendChild( renderer.domElement );
-				renderer.gammaInput = true;
-				renderer.gammaOutput = true;
 
 				// Stats (FPS, ...)
 				stats = new Stats();
@@ -69,7 +84,6 @@
 				window.addEventListener( 'resize', onWindowResize, false );
 
 				// Lights
-
 				scene.add( new THREE.AmbientLight( 0x222222 ) );
 
 				var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
@@ -105,6 +119,7 @@
 				// GUI for editing parameters
 				params = {
 					postprocessing: true,
+					backgroundColor: '#111111',
 					pixelize: true,
 					pixelSize: 8,
 					gradientMap: 'fourTone',
@@ -133,29 +148,7 @@
 					shininess: 0
 				} );
 
-				// Tan models
-				var objLoader = new OBJLoader();
-				objLoader.load( 'models/Tan OBJ 10.obj',
-					function( obj ){
-						obj.traverse( function( child ) {
-							if ( child.isMesh ) {
-								//child.material = toonMaterial;
-							}
-						} );
-						scene.add( obj );
-						outlinePass.selectedObjects.push(obj);
-						obj.translateX( -50 );
-						obj.rotateX(THREE.Math.degToRad(-90));
-						obj.rotateZ(THREE.Math.degToRad(-90));
-					},
-					function( xhr ){
-						console.log( (xhr.loaded / xhr.total * 100) + "% loaded")
-					},
-					function( err ){
-						console.error( "Error loading 'Tan OBJ 10.obj'")
-					}
-				);
-
+				// Tan model
 				var tanMesh;
 				var fbxLoader = new FBXLoader();
 				fbxLoader.load( 'models/Tan FBX 10.fbx',
@@ -163,6 +156,9 @@
 						fbx.traverse( 
 							function( child ) {
 								if ( child.isMesh ) {
+									child.castShadow = true;
+									child.receiveShadow = true;
+
 									tanMesh = child;
 									child.scale.set(100,100,100);
 
@@ -177,7 +173,7 @@
 							} );
 							scene.add( fbx );
 							outlinePass.selectedObjects.push(fbx);
-							fbx.translateX( 50 );
+							fbx.translateX( -50 );
 							fbx.rotateX(THREE.Math.degToRad(-90));
 							fbx.rotateZ(THREE.Math.degToRad(-90));
 						},
@@ -189,20 +185,33 @@
 						}
 					);
 
-				// Horse skeleton model
-				var gltfLoader = new GLTFLoader();
-				gltfLoader.load('models/horse.gltf', function ( gltf ) {
-						scene.add( gltf.scene );
-						outlinePass.selectedObjects.push( gltf.scene );
-						gltf.scene.traverse(function (child) {
-								if (child.isMesh) {
-									child.castShadow = true;
-									child.receiveShadow = true;
-								}
-							});
-						gltf.scene.position.x += 120;
-						gltf.scene.position.y -= 5;
-						gltf.scene.scale.set(30,30,30)
+					// Horse skeleton model
+					// Merge skeleon with body or create them in blender and just search for material of bones and then geometry of body
+					// THREE.GeometryUtils.merge(geometry, mesh);
+					var gltfLoader = new GLTFLoader();
+					gltfLoader.load('models/horseSkeleton.gltf', function ( gltf ) {
+							scene.add( gltf.scene );
+							outlinePass.selectedObjects.push( gltf.scene );
+							gltf.scene.traverse(function (child) {
+									if (child.isMesh) {
+										child.castShadow = true;
+										child.receiveShadow = true;
+								
+										var texture = child.material.map;
+										var color = child.material.color;
+										child.material = new THREE.MeshToonMaterial( {
+											map: texture,
+											gradientMap: fourTone,
+											color: color,
+											specular: '#111111',
+											reflectivity: 0.2,
+											shininess: 0
+										} );
+									}
+								});
+							gltf.scene.position.x += 50;
+							gltf.scene.position.y -= 5;
+							gltf.scene.scale.set(30,30,30)
 					},
 					// called while loading is progressing
 					function ( xhr ) {
@@ -213,9 +222,162 @@
 						console.log( 'An error happened', error );
 					}
 				);
-					
+
+				// Horse smoke model
+				// 3D fire https://github.com/mattatz/THREE.Fire
+				//https://github.com/yomotsu/three-particle-fire
+				gltfLoader.load('models/horseSmoke.gltf', function ( gltf ) {
+						gltf.scene.traverse(function (child) {
+								if (child.isMesh) {
+									child.updateMatrix();
+									var geometry = new THREE.Geometry().fromBufferGeometry(child.geometry);
+									var mesh = new THREE.Mesh(geometry);
+									horseGeometry.merge(geometry, mesh.matrix);
+								}
+							});
+						// Smoke
+						// have horse geometry with source at belly, feet
+						// maybe have the parameters like defuse randomly change over time
+						var horseMesh = new THREE.Mesh(horseGeometry);
+						horseMesh.scale.set(20,20,20);
+						horseMesh.position.set(200,0,0);
+						horseMesh.rotateX(THREE.Math.degToRad(-90));
+						scene.add(horseMesh);
+						console.log(horseGeometry);
+						var plane = new THREE.TorusKnotGeometry( 30, 10, 100, 16 );
+						smoke = new Fire( plane, {
+							textureWidth: 256,
+							textureHeight: 256,
+							debug: false
+						} );
+						smoke.rotateX(THREE.Math.degToRad(-90));
+						//smoke.scale.set(20,20,20);
+						smoke.position.x = 50;
+						smoke.position.y = 28;
+						smoke.position.z = 0;
+						// fire.addSource( { u: 0.5, v: 0.1, radius: 1, density: 1.0, windX: 0.0, windY: 1.0 } );
+						smoke.addSource( 0.45, 0.5, 0.1, 0.5, 0.0, 1.0 );
+						smoke.addSource( 0.55, 0.5, 0.1, 0.5, 0.0, 1.0 );
+						//outlinePass.selectedObjects.push( smoke );	
+						console.log(smoke);	
+						scene.add( smoke );
+
+						function updateColor1( value ) {
+							smoke.color1.set( value );
+						}
+						function updateColor2( value ) {
+							smoke.color2.set( value );
+						}
+						function updateColor3( value ) {
+							smoke.color3.set( value );
+						}
+						function updateColorBias( value ) {
+							smoke.colorBias = value;
+						}
+						function updateBurnRate( value ) {
+							smoke.burnRate = value;
+						}
+						function updateDiffuse( value ) {
+							smoke.diffuse = value;
+						}
+						function updateViscosity( value ) {
+							smoke.viscosity = value;
+						}
+						function updateExpansion( value ) {
+							smoke.expansion = value;
+						}
+						function updateSwirl( value ) {
+							smoke.swirl = value;
+						}
+						function updateDrag( value ) {
+							smoke.drag = value;
+						}
+						function updateAirSpeed( value ) {
+							smoke.airSpeed = value;
+						}
+						function updateWindX( value ) {
+							smoke.windVector.x = value;
+						}
+						function updateWindY( value ) {
+							smoke.windVector.y = value;
+						}
+						function updateSpeed( value ) {
+							smoke.speed = value;
+						}
+						function updateMassConservation( value ) {
+							smoke.massConservation = value;
+						}
+
+						var smokeParams = {
+							color1: '#000000',
+							color2: '#e1042b',
+							color3: '#000000',
+							colorBias: 0.88,
+							burnRate: 0.2,
+							diffuse: 2.6,
+							viscosity: 0.0,
+							expansion: 0.38,
+							swirl: 4.78,
+							drag: 0.1,
+							airSpeed: 10.0,
+							windX: 0.18,
+							windY: 0.18,
+							speed: 518.0,
+							massConservation: false
+						};
+
+						folder = gui.addFolder( 'Smoke' );
+						folder.addColor( smokeParams, 'color1' ).onChange( updateColor1 );
+						folder.addColor( smokeParams, 'color2' ).onChange( updateColor2 );
+						folder.addColor( smokeParams, 'color3' ).onChange( updateColor3 );
+						folder.add( smokeParams, 'colorBias', 0.0, 1.0 ).onChange( updateColorBias );
+						folder.add( smokeParams, 'burnRate', 0.0, 10.0 ).onChange( updateBurnRate );
+						folder.add( smokeParams, 'diffuse', 0.0, 5.0 ).step( 0.01 ).onChange( updateDiffuse );
+						folder.add( smokeParams, 'viscosity', 0.0, 5.0 ).step( 0.01 ).onChange( updateViscosity );
+						folder.add( smokeParams, 'expansion', - 1.0, 1.0 ).step( 0.01 ).onChange( updateExpansion );
+						folder.add( smokeParams, 'swirl', 0.0, 50.0 ).step( 0.01 ).onChange( updateSwirl );
+						folder.add( smokeParams, 'drag', 0.0, 1.0 ).onChange( updateDrag );
+						folder.add( smokeParams, 'airSpeed', 0.0, 50.0 ).onChange( updateAirSpeed );
+						folder.add( smokeParams, 'windX', - 5, 5 ).step( 0.01 ).onChange( updateWindX );
+						folder.add( smokeParams, 'windY', - 5, 5 ).step( 0.01 ).onChange( updateWindY );
+						folder.add( smokeParams, 'speed', 0, 1000 ).onChange( updateSpeed );
+						folder.add( smokeParams, 'massConservation' ).onChange( updateMassConservation );
+
+						function updateAll() {
+							updateColor1( smokeParams.color1 );
+							updateColor2( smokeParams.color2 );
+							updateColor3( smokeParams.color3 );
+							updateColorBias( smokeParams.colorBias );
+							updateBurnRate( smokeParams.burnRate );
+							updateDiffuse( smokeParams.diffuse );
+							updateViscosity( smokeParams.viscosity );
+							updateExpansion( smokeParams.expansion );
+							updateSwirl( smokeParams.swirl );
+							updateDrag( smokeParams.drag );
+							updateAirSpeed( smokeParams.airSpeed );
+							updateWindX( smokeParams.windX );
+							updateWindY( smokeParams.windY );
+							updateSpeed( smokeParams.speed );
+							updateMassConservation( smokeParams.massConservation );
+						}
+
+						updateAll();
+					},
+					// called while loading is progressing
+					function ( xhr ) {
+						console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+					},
+					// called when loading has errors
+					function ( error ) {
+						console.log( 'An error happened', error );
+					}
+				);
+
 				gui = new GUI();
 				gui.add( params, 'postprocessing' );
+				gui.addColor( params, 'backgroundColor' ).onChange( function ( value ) {
+					scene.background = new THREE.Color( value );
+				} );
 
 				var folder = gui.addFolder( 'Cell Shading' );
 				folder.add( params, 'gradientMap', ['threeTone', 'fourTone', 'fiveTone', 'sixTone'] ).onChange( function (value) {
