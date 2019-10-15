@@ -274,16 +274,22 @@
 				}
 			}
 
+			document.getElementById("left").ontouchstart = function() {
 				moveLeft = true;
 			}
+			document.getElementById("left").ontouchend = function() {
 				moveLeft = false;
 			}
+			document.getElementById("left").ontouchmove = function() {
 			}
 			
+			document.getElementById("right").ontouchstart = function() {
 				moveRight = true;
 			}
+			document.getElementById("right").ontouchend = function() {
 				moveRight = false;
 			}
+			document.getElementById("right").ontouchmove = function() {
 			}
 		</script>
 		<script>
