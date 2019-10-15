@@ -7,16 +7,11 @@
 		<link type="text/css" rel="stylesheet" href="main.css">
 	</head>
 	<body>
-		<div id="container"></div>
 		<div id="info">
 			<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a>
-				- Pixelization and Cel Shading Demo<div>
-			<a href="https://sketchfab.com/3d-models/horse-skeleton-eaca504567604e879b8ab2cf2763025e" target="_blank" rel="noopener">Horse Skeleton</a>
-				- by Diego Luján García</div>
-			<a href="https://sketchfab.com/3d-models/young-horse-ecdcd3f9498a4431a1e086873d69c605" target="_blank" rel="noopener">Young horse</a>
-				- by Eqart3d</div></div>
+				- Pixelization and Cel Shading Demo
+		</div>
 		
-  
 		<script src="./build/three.min.js"></script>
 		<script src="./jsm/libs/jszip.min.js"></script>
 		<script type="module">
@@ -41,8 +36,7 @@
 			var camera, scene, renderer, effect, gui, composer;
 			var particleLight;
 			var pixelPass, outlinePass, params;
-			var smoke;
-			var horseGeometry = new THREE.Geometry();
+			var tanModel, moveRight, moveLeft;
 
 			var loader = new THREE.FontLoader();
 			loader.load( 'fonts/gentilis_regular.typeface.json', function ( font ) {
@@ -51,21 +45,20 @@
 			});
 
 			function init( font ) {
-				container = document.createElement( 'div' );
-				document.body.appendChild( container );
+				container = document.getElementById( 'game' );
 
 				// Scene
 				scene = new THREE.Scene();
 				scene.background = new THREE.Color( 0x111111 );
 
 				// Camera
-				camera = new THREE.PerspectiveCamera( 10, window.innerWidth / window.innerHeight, 1, 2000 );
+				camera = new THREE.PerspectiveCamera( 20, container.clientWidth / container.clientHeight, 1, 2000 );
 				camera.position.set( 0.0, 400, 400 * 3.5 );
 
 				// WebGL renderer
 				renderer = new THREE.WebGLRenderer( { antialias: false, alpha: true } );
 				renderer.setPixelRatio( window.devicePixelRatio );
-				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.setSize( container.clientWidth, container.clientHeight );
 				renderer.autoClear = false;
 				// renderer.setClearColor( 0x000000 );
 				// renderer.setClearAlpha( 0.0 );
@@ -105,7 +98,7 @@
 				outlinePass.enabled = true;
 				outlinePass.edgeStrength = 10;
 				outlinePass.edgeGlow = 0;
-				outlinePass.edgeThickness = 4;
+				outlinePass.edgeThickness = 1;
 				outlinePass.selectedObjects = [];
 				composer.addPass( outlinePass );
 
@@ -113,7 +106,7 @@
 				pixelPass = new ShaderPass( PixelShader );
 				pixelPass.uniforms[ "resolution" ].value = new THREE.Vector2( window.innerWidth, window.innerHeight );
 				pixelPass.uniforms[ "resolution" ].value.multiplyScalar( window.devicePixelRatio );
-				pixelPass.uniforms[ "pixelSize" ].value = 8;
+				pixelPass.uniforms[ "pixelSize" ].value = 4;
 				composer.addPass( pixelPass );
 
 				// GUI for editing parameters
@@ -121,7 +114,7 @@
 					postprocessing: true,
 					backgroundColor: '#111111',
 					pixelize: true,
-					pixelSize: 8,
+					pixelSize: 4,
 					gradientMap: 'fourTone',
 					specular: '#111111',
 					reflectivity: 0.2,
@@ -152,8 +145,8 @@
 				var tanMesh;
 				var fbxLoader = new FBXLoader();
 				fbxLoader.load( 'models/Tan FBX 10.fbx',
-					function( fbx ){
-						fbx.traverse( 
+					function( fbx ) {
+						fbx.traverse(
 							function( child ) {
 								if ( child.isMesh ) {
 									child.castShadow = true;
@@ -170,206 +163,21 @@
 									bmpTexture.wrapS = bmpTexture.wrapT = THREE.RepeatWrapping;
 									child.material.bumpMap = bmpTexture;
 								}
-							} );
-							scene.add( fbx );
-							outlinePass.selectedObjects.push(fbx);
-							fbx.translateX( -50 );
-							fbx.rotateX(THREE.Math.degToRad(-90));
-							fbx.rotateZ(THREE.Math.degToRad(-90));
-						},
-						function( xhr ){
-							console.log( (xhr.loaded / xhr.total * 100) + "% loaded")
-						},
-						function( err ){
-							console.error( "Error loading 'Tan FBX 10.fbx'")
-						}
-					);
-
-					// Horse skeleton model
-					// Merge skeleon with body or create them in blender and just search for material of bones and then geometry of body
-					// THREE.GeometryUtils.merge(geometry, mesh);
-					var gltfLoader = new GLTFLoader();
-					gltfLoader.load('models/horseSkeleton.gltf', function ( gltf ) {
-							scene.add( gltf.scene );
-							outlinePass.selectedObjects.push( gltf.scene );
-							gltf.scene.traverse(function (child) {
-									if (child.isMesh) {
-										child.castShadow = true;
-										child.receiveShadow = true;
-								
-										var texture = child.material.map;
-										var color = child.material.color;
-										child.material = new THREE.MeshToonMaterial( {
-											map: texture,
-											gradientMap: fourTone,
-											color: color,
-											specular: '#111111',
-											reflectivity: 0.2,
-											shininess: 0
-										} );
-									}
-								});
-							gltf.scene.position.x += 50;
-							gltf.scene.position.y -= 5;
-							gltf.scene.scale.set(30,30,30)
+							}
+						);
+						scene.add( fbx );
+						outlinePass.selectedObjects.push(fbx);
+						fbx.translateZ( 100 );
+						fbx.rotateX(THREE.Math.degToRad(-100));
+						fbx.rotateZ(THREE.Math.degToRad(-90));
+						
+						tanModel = fbx;
 					},
-					// called while loading is progressing
-					function ( xhr ) {
-						console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+					function( xhr ){
+						console.log( (xhr.loaded / xhr.total * 100) + "% loaded")
 					},
-					// called when loading has errors
-					function ( error ) {
-						console.log( 'An error happened', error );
-					}
-				);
-
-				// Horse smoke model
-				// 3D fire https://github.com/mattatz/THREE.Fire
-				//https://github.com/yomotsu/three-particle-fire
-				gltfLoader.load('models/horseSmoke.gltf', function ( gltf ) {
-						gltf.scene.traverse(function (child) {
-								if (child.isMesh) {
-									child.updateMatrix();
-									var geometry = new THREE.Geometry().fromBufferGeometry(child.geometry);
-									var mesh = new THREE.Mesh(geometry);
-									horseGeometry.merge(geometry, mesh.matrix);
-								}
-							});
-						// Smoke
-						// have horse geometry with source at belly, feet
-						// maybe have the parameters like defuse randomly change over time
-						var horseMesh = new THREE.Mesh(horseGeometry);
-						horseMesh.scale.set(20,20,20);
-						horseMesh.position.set(200,0,0);
-						horseMesh.rotateX(THREE.Math.degToRad(-90));
-						scene.add(horseMesh);
-						console.log(horseGeometry);
-						var plane = new THREE.TorusKnotGeometry( 30, 10, 100, 16 );
-						smoke = new Fire( plane, {
-							textureWidth: 256,
-							textureHeight: 256,
-							debug: false
-						} );
-						smoke.rotateX(THREE.Math.degToRad(-90));
-						//smoke.scale.set(20,20,20);
-						smoke.position.x = 50;
-						smoke.position.y = 28;
-						smoke.position.z = 0;
-						// fire.addSource( { u: 0.5, v: 0.1, radius: 1, density: 1.0, windX: 0.0, windY: 1.0 } );
-						smoke.addSource( 0.45, 0.5, 0.1, 0.5, 0.0, 1.0 );
-						smoke.addSource( 0.55, 0.5, 0.1, 0.5, 0.0, 1.0 );
-						//outlinePass.selectedObjects.push( smoke );	
-						console.log(smoke);	
-						scene.add( smoke );
-
-						function updateColor1( value ) {
-							smoke.color1.set( value );
-						}
-						function updateColor2( value ) {
-							smoke.color2.set( value );
-						}
-						function updateColor3( value ) {
-							smoke.color3.set( value );
-						}
-						function updateColorBias( value ) {
-							smoke.colorBias = value;
-						}
-						function updateBurnRate( value ) {
-							smoke.burnRate = value;
-						}
-						function updateDiffuse( value ) {
-							smoke.diffuse = value;
-						}
-						function updateViscosity( value ) {
-							smoke.viscosity = value;
-						}
-						function updateExpansion( value ) {
-							smoke.expansion = value;
-						}
-						function updateSwirl( value ) {
-							smoke.swirl = value;
-						}
-						function updateDrag( value ) {
-							smoke.drag = value;
-						}
-						function updateAirSpeed( value ) {
-							smoke.airSpeed = value;
-						}
-						function updateWindX( value ) {
-							smoke.windVector.x = value;
-						}
-						function updateWindY( value ) {
-							smoke.windVector.y = value;
-						}
-						function updateSpeed( value ) {
-							smoke.speed = value;
-						}
-						function updateMassConservation( value ) {
-							smoke.massConservation = value;
-						}
-
-						var smokeParams = {
-							color1: '#000000',
-							color2: '#e1042b',
-							color3: '#000000',
-							colorBias: 0.88,
-							burnRate: 0.2,
-							diffuse: 2.6,
-							viscosity: 0.0,
-							expansion: 0.38,
-							swirl: 4.78,
-							drag: 0.1,
-							airSpeed: 10.0,
-							windX: 0.18,
-							windY: 0.18,
-							speed: 518.0,
-							massConservation: false
-						};
-
-						folder = gui.addFolder( 'Smoke' );
-						folder.addColor( smokeParams, 'color1' ).onChange( updateColor1 );
-						folder.addColor( smokeParams, 'color2' ).onChange( updateColor2 );
-						folder.addColor( smokeParams, 'color3' ).onChange( updateColor3 );
-						folder.add( smokeParams, 'colorBias', 0.0, 1.0 ).onChange( updateColorBias );
-						folder.add( smokeParams, 'burnRate', 0.0, 10.0 ).onChange( updateBurnRate );
-						folder.add( smokeParams, 'diffuse', 0.0, 5.0 ).step( 0.01 ).onChange( updateDiffuse );
-						folder.add( smokeParams, 'viscosity', 0.0, 5.0 ).step( 0.01 ).onChange( updateViscosity );
-						folder.add( smokeParams, 'expansion', - 1.0, 1.0 ).step( 0.01 ).onChange( updateExpansion );
-						folder.add( smokeParams, 'swirl', 0.0, 50.0 ).step( 0.01 ).onChange( updateSwirl );
-						folder.add( smokeParams, 'drag', 0.0, 1.0 ).onChange( updateDrag );
-						folder.add( smokeParams, 'airSpeed', 0.0, 50.0 ).onChange( updateAirSpeed );
-						folder.add( smokeParams, 'windX', - 5, 5 ).step( 0.01 ).onChange( updateWindX );
-						folder.add( smokeParams, 'windY', - 5, 5 ).step( 0.01 ).onChange( updateWindY );
-						folder.add( smokeParams, 'speed', 0, 1000 ).onChange( updateSpeed );
-						folder.add( smokeParams, 'massConservation' ).onChange( updateMassConservation );
-
-						function updateAll() {
-							updateColor1( smokeParams.color1 );
-							updateColor2( smokeParams.color2 );
-							updateColor3( smokeParams.color3 );
-							updateColorBias( smokeParams.colorBias );
-							updateBurnRate( smokeParams.burnRate );
-							updateDiffuse( smokeParams.diffuse );
-							updateViscosity( smokeParams.viscosity );
-							updateExpansion( smokeParams.expansion );
-							updateSwirl( smokeParams.swirl );
-							updateDrag( smokeParams.drag );
-							updateAirSpeed( smokeParams.airSpeed );
-							updateWindX( smokeParams.windX );
-							updateWindY( smokeParams.windY );
-							updateSpeed( smokeParams.speed );
-							updateMassConservation( smokeParams.massConservation );
-						}
-
-						updateAll();
-					},
-					// called while loading is progressing
-					function ( xhr ) {
-						console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-					},
-					// called when loading has errors
-					function ( error ) {
-						console.log( 'An error happened', error );
+					function( err ){
+						console.error( "Error loading 'Tan FBX 10.fbx'")
 					}
 				);
 
@@ -423,19 +231,25 @@
 			}
 
 			function onWindowResize() {
-				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.aspect = container.clientWidth / container.clientHeight;
 				camera.updateProjectionMatrix();
-				renderer.setSize( window.innerWidth, window.innerHeight );
-				composer.setSize( window.innerWidth, window.innerHeight );
+				renderer.setSize( container.clientWidth, container.clientHeight );
+				composer.setSize( container.clientWidth, container.clientHeight );
 
 				// Pixelization
-				pixelPass.uniforms[ "resolution" ].value.set( window.innerWidth, window.innerHeight ).multiplyScalar( window.devicePixelRatio );
+				pixelPass.uniforms[ "resolution" ].value.set( container.clientWidth, container.clientHeight ).multiplyScalar( window.devicePixelRatio );
 			}
 
 			function animate() {
 				requestAnimationFrame( animate );
 
 				stats.begin();
+				if (moveLeft) {
+					tanModel.translateY( -8 );
+				}
+				if (moveRight) {
+					tanModel.translateY( 8 );
+				}
 				render();
 				stats.end();
 			}
@@ -459,6 +273,125 @@
 					renderer.render( scene, camera );
 				}
 			}
+
+			document.getElementById("left").onmousedown = function() {
+				moveLeft = true;
+			}
+			
+			document.getElementById("right").onmousedown = function() {
+				moveRight = true;
+			}
+
+			document.getElementById("left").onmouseup = function() {
+				moveLeft = false;
+			}
+			
+			document.getElementById("right").onmouseup = function() {
+				moveRight = false;
+			}
 		</script>
+		<script>
+			// User Interface
+			window.onload = function() {
+                class ProgressRing extends HTMLElement {
+                    constructor() {
+                        super();
+                        const stroke = this.getAttribute('stroke');
+                        const radius = this.getAttribute('radius');
+                        const player = this.getAttribute('player');
+                        const normalizedRadius = radius - stroke * 2;
+                        this._circumference = normalizedRadius * 2 * Math.PI;
+
+                        this._root = this.attachShadow({mode: 'open'});
+                        this._root.innerHTML = `
+                        <svg height="${radius * 2} "width="${radius * 2}">
+                            <style>
+                                .playerNumber {
+                                    font-size: 24px;
+                                    font-weight: bold;
+                                    font-family: Arial, Helvetica, sans-serif;
+                                    fill: red;
+                                }
+                            </style>
+                            <circle
+                                stroke="green"
+                                stroke-dasharray="${this._circumference} ${this._circumference}"
+                                style="stroke-dashoffset:${this._circumference}"
+                                stroke-width="${stroke}"
+                                fill="white"
+                                r="${normalizedRadius}"
+                                cx="${radius}"
+                                cy="${radius}"
+                            />
+                            <text x="50%" y="50%" dy="08px" text-anchor="middle" class="playerNumber">${player}</text>
+                        </svg>
+
+                        <style>
+                            circle {
+                                transition: stroke-dashoffset 0.35s;
+                                transform-origin: 50% 50%;
+                            }
+                        </style>
+                        `;
+                    }
+        
+                    setProgress(percent) {
+                        const offset = this._circumference - (percent / 100 * this._circumference);
+                        const circle = this._root.querySelector('circle');
+                        circle.style.strokeDashoffset = offset; 
+                    }
+
+                    static get observedAttributes() {
+                        return ['progress'];
+                    }
+
+                    attributeChangedCallback(name, oldValue, newValue) {
+                        if (name === 'progress') {
+                        this.setProgress(newValue);
+                        }
+                    }
+                }
+
+                window.customElements.define('progress-ring', ProgressRing);
+
+                // emulate progress attribute change
+                let progress = 0;
+                const el = document.querySelector('progress-ring');
+                el.setAttribute('progress', 75);
+        };
+		</script>
+			<div class="overlay">
+				<div class="player">
+					<progress-ring stroke="8" radius="40" progress="100" player="P1">
+					</progress-ring>
+				</div>
+				<div class="time">
+					08:00
+				</div>
+				<div class="player">
+					<progress-ring stroke="8" radius="40" progress="100" player="P2">
+					</progress-ring>
+				</div>
+			</div>
+			<div id="game" class="game">
+			</div>
+			<div class="action">
+				<button class="grab">Grab</button>
+				<button class="attack">Attack</button>
+				<button class="special">Special</button>
+			</div>
+			<div class="top">
+				<button id="jump" class="jump" onclick="myFunction()">Jump</button>
+			</div>
+			<div class="middle">
+				<button id="left" class="move">Left</button>
+				<button class="block">Block</button>
+				<button id="right" class="move">Right</button>
+			</div>
+			<div class="bottom">
+				<button class="hop">Hop Left</button>
+				<button class="down">Down</button>
+				<button class="hop">Hop Right</button>
+			</div>
 	</body>
 </html>

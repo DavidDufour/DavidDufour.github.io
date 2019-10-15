@@ -1,6 +1,195 @@
-body {
+/* UI */
+html,body{
 	margin: 0;
-	background-color: #000;
+	background-color: rgb(161, 86, 51);
+	height:98%;
+}
+
+.overlay {
+	margin: 0;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	-ms-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+	z-index: 2;
+}
+
+.player {
+	float: left;
+	position: relative;
+	top: -10px;
+	margin: 10px;
+	z-index: 2;
+}
+
+.time {
+	float: left;
+	position: relative;
+	top: 5px;
+	text-align: center;
+	font-size: 26px;
+	font-weight: bold;
+	font-family:Arial, Helvetica, sans-serif;
+	color: rgb(233, 210, 181);
+	background-image: linear-gradient(to bottom right, rgb(233, 162, 70), rgb(194, 126, 38));
+	box-sizing: border-box;
+	padding: 5px 10px;
+	border: 4px solid rgb(126, 82, 25);
+	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+	border-radius: 25px;
+	margin: 10px;
+	z-index: 2;
+}
+
+.game {
+	float: left;
+	width: 100%;
+	height:50%;
+	z-index: 1;
+}
+
+.action .grab {
+	float: left;
+	box-sizing: border-box;
+	width: calc(33% - 40px);
+	border: none;
+	padding: 14px 28px;
+	margin: 90px 20px;
+	background-color: rgb(235, 235, 104);
+	color: black;
+	font-size: 16px;
+	cursor: pointer;
+	text-align: center;
+	border-radius: 30px;
+	z-index: 3;
+}
+
+.action .attack {
+	float: left;
+	box-sizing: border-box;
+	width: calc(34% - 40px);
+	border: none;
+	padding: 14px 28px;
+	margin: 90px 20px;
+	background-color: rgb(255, 66, 66);
+	color: white;
+	font-size: 16px;
+	cursor: pointer;
+	text-align: center;
+	border-radius: 30px;
+	z-index: 3;
+}
+
+.action .special {
+	float: left;
+	box-sizing: border-box;
+	width: calc(33% - 40px);
+	border: none;
+	padding: 14px 28px;
+	margin: 90px 20px;
+	background-color: rgb(66, 66, 66);
+	color: white;
+	font-size: 16px;
+	cursor: pointer;
+	text-align: center;
+	border-radius: 30px;
+	z-index: 3;
+}
+
+.top .jump {
+	float: left;
+	box-sizing: border-box;
+	width: calc(100% - 20px);
+	border: 4px solid rgb(66, 100, 66);
+	padding: 14px 28px;
+	margin: 20px 10px;
+	background-image: linear-gradient(to bottom right, rgb(50, 175, 50), rgb(100, 175, 100));
+	color: rgb(225, 255, 225);
+	font-size: 16px;
+	font-weight: bold;
+	font-family:Arial, Helvetica, sans-serif;
+	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+	cursor: pointer;
+	text-align: center;
+	border-radius: 30px;
+	z-index: 3;
+}
+
+.top .jump:hover {
+	background-image: linear-gradient(to bottom right, rgb(75, 175, 75), rgb(125, 175, 125));
+	color: white;
+	z-index: 3;
+}
+
+.middle .move {
+	float: left;
+	box-sizing: border-box;
+	width: calc(45% - 20px);
+	border: none;
+	padding: 14px 28px;
+	margin: 20px 10px;
+	background-color: #4CAF50;
+	color: white;
+	font-size: 16px;
+	cursor: pointer;
+	text-align: center;
+	border-radius: 30px;
+	z-index: 3;
+}
+
+.middle .block {
+	float: left;
+	box-sizing: border-box;
+	width: calc(10% - 20px);
+	border: none;
+	padding: 14px 2px;
+	margin: 20px 10px;
+	background-color: rgb(66, 66, 255);
+	color: white;
+	font-size: 16px;
+	cursor: pointer;
+	text-align: center;
+	border-radius: 30px;
+	z-index: 3;
+}
+
+.bottom .hop {
+	float: left;
+	box-sizing: border-box;
+	width: calc(45% - 20px);
+	border: none;
+	border-radius: 30px;
+	padding: 14px 28px;
+	margin: 20px 10px;
+	background-color: #4CAF50;
+	color: white;
+	font-size: 16px;
+	cursor: pointer;
+	text-align: center;
+	border-radius: 30px;
+	z-index: 3;
+}
+
+.bottom .down {
+	float: left;
+	box-sizing: border-box;
+	width: calc(10% - 20px);
+	border: none;
+	border-radius: 30px;
+	padding: 14px 2px;
+	margin: 20px 10px;
+	background-color: #4CAF50;
+	color: white;
+	font-size: 16px;
+	cursor: pointer;
+	text-align: center;
+	border-radius: 30px;
+	z-index: 3;
+}
+
+/* THREE.js */
+body {
 	color: #fff;
 	font-family: Monospace;
 	font-size: 13px;
