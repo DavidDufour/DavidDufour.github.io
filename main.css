@@ -1,8 +1,8 @@
 /* UI */
 html,body{
 	margin: 0;
-	background-color: rgb(161, 86, 51);
-	height:98%;
+	background-image: linear-gradient(to bottom right,  rgb(161, 151, 92), rgb(216, 207, 158));
+	height:100%;
 }
 
 .overlay {
@@ -17,18 +17,18 @@ html,body{
 
 .player {
 	float: left;
+	width: 33.3%;
 	position: relative;
-	top: -10px;
-	margin: 10px;
 	z-index: 2;
 }
 
 .time {
 	float: left;
+	width: 33.3%;
 	position: relative;
-	top: 5px;
+	top: 21px;
 	text-align: center;
-	font-size: 26px;
+	font-size: 21px;
 	font-weight: bold;
 	font-family:Arial, Helvetica, sans-serif;
 	color: rgb(233, 210, 181);
@@ -36,74 +36,83 @@ html,body{
 	box-sizing: border-box;
 	padding: 5px 10px;
 	border: 4px solid rgb(126, 82, 25);
-	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
 	border-radius: 25px;
-	margin: 10px;
+	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
 	z-index: 2;
 }
 
 .game {
 	float: left;
 	width: 100%;
-	height:50%;
+	height: 50%;
 	z-index: 1;
 }
 
 .action .grab {
 	float: left;
+	margin: 50px 0px;
 	box-sizing: border-box;
-	width: calc(33% - 40px);
-	border: none;
+	width: 33.3%;
+	border: 4px solid rgb(100, 100, 66);
+	border-radius: 30px;
 	padding: 14px 28px;
-	margin: 90px 20px;
 	background-color: rgb(235, 235, 104);
-	color: black;
+	color: rgb(66, 66, 0);
 	font-size: 16px;
+	font-weight: bold;
+	font-family:Arial, Helvetica, sans-serif;
+	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
 	cursor: pointer;
 	text-align: center;
-	border-radius: 30px;
 	z-index: 3;
 }
 
 .action .attack {
 	float: left;
+	margin: 50px 0px;
 	box-sizing: border-box;
-	width: calc(34% - 40px);
-	border: none;
+	width: 33.4%;
+	border: 4px solid rgb(100, 66, 66);
+	border-radius: 30px;
 	padding: 14px 28px;
-	margin: 90px 20px;
-	background-color: rgb(255, 66, 66);
-	color: white;
+	background-image: linear-gradient(to bottom right, rgb(175, 50, 50), rgb(175, 100, 100));
+	color: rgb(255, 225, 225);
 	font-size: 16px;
+	font-weight: bold;
+	font-family:Arial, Helvetica, sans-serif;
+	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
 	cursor: pointer;
 	text-align: center;
-	border-radius: 30px;
 	z-index: 3;
 }
 
 .action .special {
 	float: left;
+	margin: 50px 0px;
 	box-sizing: border-box;
-	width: calc(33% - 40px);
-	border: none;
+	width: 33.3%;
+	border: 4px solid rgb(66, 66, 66);
+	border-radius: 30px;
 	padding: 14px 28px;
-	margin: 90px 20px;
-	background-color: rgb(66, 66, 66);
-	color: white;
+	background-image: linear-gradient(to bottom right, rgb(50, 50, 50), rgb(100, 100, 100));
+	color: rgb(190, 190, 190);
 	font-size: 16px;
+	font-weight: bold;
+	font-family:Arial, Helvetica, sans-serif;
+	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
 	cursor: pointer;
 	text-align: center;
-	border-radius: 30px;
 	z-index: 3;
 }
 
 .top .jump {
 	float: left;
+	margin: 10px 0px;
 	box-sizing: border-box;
-	width: calc(100% - 20px);
+	width: 100%;
 	border: 4px solid rgb(66, 100, 66);
+	border-radius: 30px;
 	padding: 14px 28px;
-	margin: 20px 10px;
 	background-image: linear-gradient(to bottom right, rgb(50, 175, 50), rgb(100, 175, 100));
 	color: rgb(225, 255, 225);
 	font-size: 16px;
@@ -112,7 +121,6 @@ html,body{
 	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
 	cursor: pointer;
 	text-align: center;
-	border-radius: 30px;
 	z-index: 3;
 }
 
@@ -124,67 +132,78 @@ html,body{
 
 .middle .move {
 	float: left;
+	margin: 10px 0px;
 	box-sizing: border-box;
-	width: calc(45% - 20px);
-	border: none;
+	width: 45%;
+	border: 4px solid rgb(66, 100, 66);
+	border-radius: 30px;
 	padding: 14px 28px;
-	margin: 20px 10px;
-	background-color: #4CAF50;
-	color: white;
+	background-image: linear-gradient(to bottom right, rgb(50, 175, 50), rgb(100, 175, 100));
+	color: rgb(225, 255, 225);
 	font-size: 16px;
+	font-weight: bold;
+	font-family:Arial, Helvetica, sans-serif;
+	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
 	cursor: pointer;
 	text-align: center;
-	border-radius: 30px;
 	z-index: 3;
 }
 
 .middle .block {
 	float: left;
+	margin: 10px 0px;
 	box-sizing: border-box;
-	width: calc(10% - 20px);
-	border: none;
+	width:10%;
+	border: 4px solid rgb(66, 66, 100);
+	border-radius: 30px;
 	padding: 14px 2px;
-	margin: 20px 10px;
-	background-color: rgb(66, 66, 255);
-	color: white;
+	background-image: linear-gradient(to bottom right, rgb(50, 50, 175), rgb(100, 100, 175));
+	color: rgb(225, 225, 255);
+	;
 	font-size: 16px;
+	font-weight: bold;
+	font-family:Arial, Helvetica, sans-serif;
+	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
 	cursor: pointer;
 	text-align: center;
-	border-radius: 30px;
 	z-index: 3;
 }
 
 .bottom .hop {
 	float: left;
+	margin: 10px 0px;
 	box-sizing: border-box;
-	width: calc(45% - 20px);
-	border: none;
+	width: 45%;
+	border: 4px solid rgb(66, 100, 66);
 	border-radius: 30px;
 	padding: 14px 28px;
-	margin: 20px 10px;
-	background-color: #4CAF50;
-	color: white;
+	background-image: linear-gradient(to bottom right, rgb(50, 175, 50), rgb(100, 175, 100));
+	color: rgb(225, 255, 225);
 	font-size: 16px;
+	font-weight: bold;
+	font-family:Arial, Helvetica, sans-serif;
+	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
 	cursor: pointer;
 	text-align: center;
-	border-radius: 30px;
 	z-index: 3;
 }
 
 .bottom .down {
 	float: left;
+	margin: 10px 0px;
 	box-sizing: border-box;
-	width: calc(10% - 20px);
-	border: none;
+	width: 10%;
+	border: 4px solid rgb(66, 100, 66);
 	border-radius: 30px;
 	padding: 14px 2px;
-	margin: 20px 10px;
-	background-color: #4CAF50;
-	color: white;
+	background-image: linear-gradient(to bottom right, rgb(50, 175, 50), rgb(100, 175, 100));
+	color: rgb(225, 255, 225);
 	font-size: 16px;
+	font-weight: bold;
+	font-family:Arial, Helvetica, sans-serif;
+	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
 	cursor: pointer;
 	text-align: center;
-	border-radius: 30px;
 	z-index: 3;
 }
 
