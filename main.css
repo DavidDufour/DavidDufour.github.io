@@ -3,6 +3,7 @@ html,body{
 	margin: 0;
 	background-image: linear-gradient(to bottom right,  rgb(161, 151, 92), rgb(216, 207, 158));
 	height:100%;
+	user-select: none;
 }
 
 .overlay {
