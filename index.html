@@ -10,6 +10,9 @@
 		<div id="info">
 			<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a>
 				- Pixelization and Cel Shading Demo
+			<div></div>
+			<a href="http://www.custommapmakers.org/skyboxes.php" target="_blank" rel="noopener">custommapmakers.org</a>
+				- Kothic Skyboxes by Kell
 		</div>
 		
 		<script src="./build/three.min.js"></script>
@@ -18,6 +21,7 @@
 			import Stats from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/libs/stats.module.js';
 
 			import { OrbitControls } from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/controls/OrbitControls.js';
+			import { TGALoader } from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/loaders/TGALoader.js';
 			import { GLTFLoader } from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/loaders/GLTFLoader.js';
 			import { FBXLoader } from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/loaders/FBXLoader.js';
 			import { OBJLoader } from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/loaders/OBJLoader.js';
@@ -52,11 +56,11 @@
 				scene.background = new THREE.Color( 0x111111 );
 
 				// Camera
-				camera = new THREE.PerspectiveCamera( 20, container.clientWidth / container.clientHeight, 1, 2000 );
-				camera.position.set( 0.0, 400, 400 * 3.5 );
+				camera = new THREE.PerspectiveCamera( 30, container.clientWidth / container.clientHeight, 1, 6000 );
+				camera.position.set( 0.0, 0, 800 );
 
 				// WebGL renderer
-				renderer = new THREE.WebGLRenderer( { antialias: false, alpha: true } );
+				renderer = new THREE.WebGLRenderer( { antialias: false } );
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( container.clientWidth, container.clientHeight );
 				renderer.autoClear = false;
@@ -124,8 +128,42 @@
 					edgeGlow: 0.0,
 					edgeThickness: 1,
 					visibleEdgeColor: '#ffffff',
-					hiddenEdgeColor: '#000000'
+					hiddenEdgeColor: '#ffffff'
 				};
+
+				// Skybox
+				let materialArray = [];
+				let texture_ft = new TGALoader().load( 'textures/arrakisday/arrakisday_ft.tga');
+				texture_ft.center.set( 0.5, 0.5 );
+				texture_ft.rotation = Math.PI;
+				let texture_bk = new TGALoader().load( 'textures/arrakisday/arrakisday_bk.tga');
+				texture_bk.center.set( 0.5, 0.5 );
+				texture_bk.rotation = Math.PI;
+				let texture_up = new TGALoader().load( 'textures/arrakisday/arrakisday_up.tga');
+				texture_up.center.set( 0.5, 0.5 );
+				texture_up.rotation = Math.PI / 2;
+				let texture_dn = new TGALoader().load( 'textures/arrakisday/arrakisday_dn.tga');
+				texture_dn.center.set( 0.5, 0.5 );
+				texture_dn.rotation = Math.PI / 2;
+				let texture_rt = new TGALoader().load( 'textures/arrakisday/arrakisday_rt.tga');
+				texture_rt.center.set( 0.5, 0.5 );
+				texture_rt.rotation = Math.PI;
+				let texture_lf = new TGALoader().load( 'textures/arrakisday/arrakisday_lf.tga');
+				texture_lf.center.set( 0.5, 0.5 );
+				texture_lf.rotation = Math.PI;
+				materialArray.push(new THREE.MeshBasicMaterial( { map: texture_lf }));
+				materialArray.push(new THREE.MeshBasicMaterial( { map: texture_rt }));
+				materialArray.push(new THREE.MeshBasicMaterial( { map: texture_up }));
+				materialArray.push(new THREE.MeshBasicMaterial( { map: texture_dn }));
+				materialArray.push(new THREE.MeshBasicMaterial( { map: texture_bk }));
+				materialArray.push(new THREE.MeshBasicMaterial( { map: texture_ft }));
+		
+				for (let i = 0; i < 6; i++) {
+					materialArray[i].side = THREE.BackSide;
+				}
+				let skyboxGeo = new THREE.BoxGeometry( 5000, 5000, 5000);
+				let skybox = new THREE.Mesh( skyboxGeo, materialArray );
+				scene.add( skybox ); 
 
 				// Toon material
 				var threeTone = new THREE.TextureLoader().load( 'textures/threeTone.jpg' );
@@ -167,9 +205,9 @@
 						);
 						scene.add( fbx );
 						outlinePass.selectedObjects.push(fbx);
-						fbx.translateZ( 100 );
-						fbx.rotateX(THREE.Math.degToRad(-100));
-						fbx.rotateZ(THREE.Math.degToRad(-90));
+						fbx.rotateX(THREE.Math.degToRad(-90));
+						fbx.rotateY(THREE.Math.degToRad(0));
+						fbx.rotateZ(THREE.Math.degToRad(-100));
 						
 						tanModel = fbx;
 					},
@@ -362,38 +400,38 @@
                 el.setAttribute('progress', 75);
         };
 		</script>
-			<div class="overlay">
-				<div class="player">
-					<progress-ring stroke="8" radius="40" progress="100" player="P1">
-					</progress-ring>
-				</div>
-				<div class="time">
-					08:00
-				</div>
-				<div class="player">
-					<progress-ring stroke="8" radius="40" progress="100" player="P2">
-					</progress-ring>
-				</div>
+		<div class="overlay">
+			<div class="player">
+				<progress-ring stroke="8" radius="40" progress="100" player="P1">
+				</progress-ring>
 			</div>
-			<div id="game" class="game">
+			<div class="time">
+				08:00
 			</div>
-			<div class="action">
-				<button class="grab">Grab</button>
-				<button class="attack">Attack</button>
-				<button class="special">Special</button>
+			<div class="player">
+				<progress-ring stroke="8" radius="40" progress="100" player="P2">
+				</progress-ring>
 			</div>
-			<div class="top">
-				<button id="jump" class="jump" onclick="myFunction()">Jump</button>
-			</div>
-			<div class="middle">
-				<button id="left" class="move">Left</button>
-				<button class="block">Block</button>
-				<button id="right" class="move">Right</button>
-			</div>
-			<div class="bottom">
-				<button class="hop">Hop Left</button>
-				<button class="down">Down</button>
-				<button class="hop">Hop Right</button>
-			</div>
+		</div>
+		<div id="game" class="game">
+		</div>
+		<div class="action">
+			<button class="grab">Grab</button>
+			<button class="attack">Attack</button>
+			<button class="special">Special</button>
+		</div>
+		<div class="top">
+			<button id="jump" class="jump" onclick="myFunction()">Jump</button>
+		</div>
+		<div class="middle">
+			<button id="left" class="move">Left</button>
+			<button class="block">Block</button>
+			<button id="right" class="move">Right</button>
+		</div>
+		<div class="bottom">
+			<button class="hop">Hop Left</button>
+			<button class="down">Down</button>
+			<button class="hop">Hop Right</button>
+		</div>
 	</body>
 </html>
