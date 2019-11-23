@@ -15,9 +15,11 @@
 				- Kothic Skyboxes by Kell
 		</div>
 		
-		<script src="./build/three.min.js"></script>
-		<script src="./jsm/libs/jszip.min.js"></script>
+		<script src="https://rawgit.com/mrdoob/three.js/dev/build/three.js"></script>
+		<script src="https://rawgit.com/mrdoob/three.js/dev/examples/js/libs/jszip.min.js"></script>
 		<script type="module">
+			"use strict";
+
 			import Stats from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/libs/stats.module.js';
 
 			import { OrbitControls } from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/controls/OrbitControls.js';
@@ -31,18 +33,19 @@
 			import { RenderPass } from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/postprocessing/RenderPass.js';
 			import { ShaderPass } from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/postprocessing/ShaderPass.js';
 			import { OutlinePass } from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/postprocessing/OutlinePass.js';
-			import { PixelShader } from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/shaders/PixelShader.js';
+			import { PixelShader } from './jsm/shaders/PixelShader.js';
 			// Smoke
 			import { Fire } from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/objects/Fire.js';
 
-			var container, stats;
+			let container, stats;
 
-			var camera, scene, renderer, effect, gui, composer;
-			var particleLight;
-			var pixelPass, outlinePass, params;
-			var tanModel, moveRight, moveLeft;
+			let camera, scene, renderer, effect, gui, composer;
+			let particleLight;
+			let pixelPass, outlinePass, params;
+			let tanModel, moveRight, moveLeft;
+			let mixer;
 
-			var loader = new THREE.FontLoader();
+			let loader = new THREE.FontLoader();
 			loader.load( 'fonts/gentilis_regular.typeface.json', function ( font ) {
 				init( font );
 				animate();
@@ -53,7 +56,7 @@
 
 				// Scene
 				scene = new THREE.Scene();
-				scene.background = new THREE.Color( 0x111111 );
+				scene.background = new THREE.Color( 0x555555 );
 
 				// Camera
 				camera = new THREE.PerspectiveCamera( 30, container.clientWidth / container.clientHeight, 1, 6000 );
@@ -75,7 +78,7 @@
 				container.appendChild( stats.dom );
 
 				// Orbital controls
-				var controls = new OrbitControls( camera, renderer.domElement );
+				let controls = new OrbitControls( camera, renderer.domElement );
 
 				// Handles resizing of windows
 				window.addEventListener( 'resize', onWindowResize, false );
@@ -83,14 +86,14 @@
 				// Lights
 				scene.add( new THREE.AmbientLight( 0x222222 ) );
 
-				var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+				let directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
 				directionalLight.position.set( 1, 1, 1 ).normalize();
 				scene.add( directionalLight );
 
 				// particleLight = new THREE.Mesh( new THREE.SphereBufferGeometry( 4, 8, 8 ), new THREE.MeshBasicMaterial( { color: 0xffffff } ) );
 				// scene.add( particleLight );
 
-				// var pointLight = new THREE.PointLight( 0xffffff, 2, 800 );
+				// let pointLight = new THREE.PointLight( 0xffffff, 2, 800 );
 				// particleLight.add( pointLight );
 
 				// Post processing
@@ -103,6 +106,8 @@
 				outlinePass.edgeStrength = 10;
 				outlinePass.edgeGlow = 0;
 				outlinePass.edgeThickness = 1;
+				// outlinePass.visibleEdgeColor = '#ffffff';
+				// outlinePass.hiddenEdgeColor = '#000000';
 				outlinePass.selectedObjects = [];
 				composer.addPass( outlinePass );
 
@@ -128,8 +133,68 @@
 					edgeGlow: 0.0,
 					edgeThickness: 1,
 					visibleEdgeColor: '#ffffff',
-					hiddenEdgeColor: '#ffffff'
+					hiddenEdgeColor: '#000000'
 				};
+
+				// Spheres
+				var geometry = new THREE.SphereGeometry( 32, 32, 32 );
+				let threeTone = new THREE.TextureLoader().load( 'textures/threeTone.jpg' );
+				let fourTone = new THREE.TextureLoader().load( 'textures/fourTone.jpg' );
+				let fiveTone = new THREE.TextureLoader().load( 'textures/fiveTone.jpg' );
+				let sixTone = new THREE.TextureLoader().load( 'textures/sixTone.jpg' );
+				var material = new THREE.MeshToonMaterial( {
+										color: 0xff0000,
+										gradientMap: threeTone,
+										specular: '#111111',
+										reflectivity: 0.2,
+										shininess: 0
+									} );
+				var sphere = new THREE.Mesh( geometry, material );
+				sphere.position.x += -96*2;
+				sphere.position.y += 200;
+				scene.add( sphere );
+				material = new THREE.MeshToonMaterial( {
+										color: 0xff7f00,
+										gradientMap: fourTone,
+										specular: '#111111',
+										reflectivity: 0.2,
+										shininess: 0
+									} );
+				sphere = new THREE.Mesh( geometry, material );
+				sphere.position.x += -64*2;
+				sphere.position.y += 200;
+				scene.add( sphere );
+				material =  new THREE.MeshToonMaterial( {
+										color: 0xffff00,
+										gradientMap: fiveTone,
+										specular: '#111111',
+										reflectivity: 0.2,
+										shininess: 0
+									} );
+				sphere = new THREE.Mesh( geometry, material );
+				sphere.position.x += -32*2;
+				sphere.position.y += 200;
+				scene.add( sphere );
+				material = new THREE.MeshPhongMaterial ( {color: 0x00ff00} );
+				sphere = new THREE.Mesh( geometry, material );
+				sphere.position.x += 0;
+				sphere.position.y += 200;
+				scene.add( sphere );
+				material = new THREE.MeshLambertMaterial( {color: 0x0000ff} );
+				sphere = new THREE.Mesh( geometry, material );
+				sphere.position.x += 32*2;
+				sphere.position.y += 200;
+				scene.add( sphere );
+				material = new THREE.MeshDepthMaterial( {color: 0x2e2b5f} );
+				sphere = new THREE.Mesh( geometry, material );
+				sphere.position.x += 64*2;
+				sphere.position.y += 200;
+				scene.add( sphere );
+				material = new THREE.MeshBasicMaterial( {color: 0x8b00ff} );
+				sphere = new THREE.Mesh( geometry, material );
+				sphere.position.x += 96*2;
+				sphere.position.y += 200;
+				scene.add( sphere );
 
 				// Skybox
 				let materialArray = [];
@@ -163,25 +228,55 @@
 				}
 				let skyboxGeo = new THREE.BoxGeometry( 5000, 5000, 5000);
 				let skybox = new THREE.Mesh( skyboxGeo, materialArray );
-				scene.add( skybox ); 
+				//scene.add( skybox ); 
 
 				// Toon material
-				var threeTone = new THREE.TextureLoader().load( 'textures/threeTone.jpg' );
-				var fourTone = new THREE.TextureLoader().load( 'textures/fourTone.jpg' );
-				var fiveTone = new THREE.TextureLoader().load( 'textures/fiveTone.jpg' );
-				var sixTone = new THREE.TextureLoader().load( 'textures/sixTone.jpg' );
 				threeTone.minFilter = fourTone.minFilter = fiveTone.minFilter = sixTone.minFilter = THREE.NearestFilter;
 				threeTone.magFilter = fourTone.magFilter = fiveTone.magFilter = sixTone.magFilter = THREE.NearestFilter;
-				var toonMaterial = new THREE.MeshToonMaterial( {
-					gradientMap: fourTone,
-					specular: '#111111',
-					reflectivity: 0.2,
-					shininess: 0
-				} );
+
+				// Desert model
+				let fbxLoader = new FBXLoader();
+				fbxLoader.load( 'models/desert/Desert.fbx',
+					function( fbx ) {
+						fbx.traverse(
+							function( child ) {
+								if ( child.isMesh ) {
+									child.castShadow = true;
+									child.receiveShadow = true;
+
+									child.scale.set(190,190,190);
+
+									child.material = new THREE.MeshToonMaterial( {
+										gradientMap: fourTone,
+										specular: '#111111',
+										reflectivity: 0.2,
+										shininess: 0
+									} );
+									let imgTexture = new THREE.TextureLoader().load( 'models/desert/Desert_' + child.name + '.png' );
+									imgTexture.wrapS = imgTexture.wrapT = THREE.RepeatWrapping;
+									child.material.map = imgTexture;
+									let bmpTexture = new THREE.TextureLoader().load( 'models/desert/Desert_' + child.name + '_nrm.png' );
+									bmpTexture.wrapS = bmpTexture.wrapT = THREE.RepeatWrapping;
+									child.material.bumpMap = bmpTexture;
+								}
+							}
+						);
+						scene.add( fbx );
+						fbx.rotateX(THREE.Math.degToRad(-93));
+						fbx.translateY( 290 );
+						fbx.translateZ( -60 );
+					},
+					function( xhr ){
+						console.log( (xhr.loaded / xhr.total * 100) + "% loaded")
+					},
+					function( err ){
+						console.error( "Error loading 'Tan FBX 10.fbx'")
+					}
+				);
 
 				// Tan model
-				var tanMesh;
-				var fbxLoader = new FBXLoader();
+				let tanMesh;
+				fbxLoader = new FBXLoader();
 				fbxLoader.load( 'models/Tan FBX 10.fbx',
 					function( fbx ) {
 						fbx.traverse(
@@ -193,11 +288,16 @@
 									tanMesh = child;
 									child.scale.set(100,100,100);
 
-									child.material = toonMaterial;
-									var imgTexture = new THREE.TextureLoader().load( "models/Tan FBX 10_Tan.png" );
+									child.material = new THREE.MeshToonMaterial( {
+										gradientMap: fourTone,
+										specular: '#111111',
+										reflectivity: 0.2,
+										shininess: 0
+									} );
+									let imgTexture = new THREE.TextureLoader().load( "models/Tan FBX 10_Tan.png" );
 									imgTexture.wrapS = imgTexture.wrapT = THREE.RepeatWrapping;
 									child.material.map = imgTexture;
-									var bmpTexture = new THREE.TextureLoader().load( "models/Tan FBX 10_Tan_nrm.png" );
+									let bmpTexture = new THREE.TextureLoader().load( "models/Tan FBX 10_Tan_nrm.png" );
 									bmpTexture.wrapS = bmpTexture.wrapT = THREE.RepeatWrapping;
 									child.material.bumpMap = bmpTexture;
 								}
@@ -219,13 +319,70 @@
 					}
 				);
 
+				// Fiverr model
+				let fiverrMesh;
+				let fiverrLoader = new FBXLoader();
+				fiverrLoader.load( 'models/fiverr/character1.fbx',
+					function( fbx ) {
+						fbx.traverse(
+							function( child ) {
+								if ( child.isMesh ) {
+									child.castShadow = true;
+									child.receiveShadow = true;
+
+									fiverrMesh = child;
+									child.scale.set(100,100,100);
+
+									child.material = new THREE.MeshToonMaterial( {
+										gradientMap: fourTone,
+										specular: '#111111',
+										reflectivity: 0.2,
+										shininess: 0
+									} );
+									let imgTexture = new THREE.TextureLoader().load( "models/fiverr/texture map.jpg" );
+									imgTexture.wrapS = imgTexture.wrapT = THREE.RepeatWrapping;
+									child.material.map = imgTexture;
+									let bmpTexture = new THREE.TextureLoader().load( "models/fiverr/normal map.jpg" );
+									bmpTexture.wrapS = bmpTexture.wrapT = THREE.RepeatWrapping;
+									child.material.normalMap = bmpTexture;
+								}
+							}
+						);
+						scene.add( fbx );
+						outlinePass.selectedObjects.push(fbx);
+						fbx.rotateX(THREE.Math.degToRad(0));
+						fbx.rotateY(THREE.Math.degToRad(180));
+						fbx.rotateZ(THREE.Math.degToRad(0));
+						fbx.translateX( 120 );
+						fbx.translateZ( 0 );
+					},
+					function( xhr ){
+						console.log( (xhr.loaded / xhr.total * 100) + "% loaded")
+					},
+					function( err ){
+						console.error( "Error loading 'Tan FBX 10.fbx'")
+					}
+				);
+
+				// Horse model
+				let loader = new GLTFLoader();
+				loader.load( "models/Horse.glb", function ( gltf ) {
+					let mesh = gltf.scene.children[0];
+
+					mesh.translateX(-100);
+					mesh.translateY(-100);
+					//scene.add( mesh );
+					mixer = new THREE.AnimationMixer( mesh );
+					mixer.clipAction( gltf.animations[0] ).setDuration( 1 ).play();
+				} );
+
 				gui = new GUI();
 				gui.add( params, 'postprocessing' );
 				gui.addColor( params, 'backgroundColor' ).onChange( function ( value ) {
 					scene.background = new THREE.Color( value );
 				} );
 
-				var folder = gui.addFolder( 'Cell Shading' );
+				let folder = gui.addFolder( 'Cell Shading' );
 				folder.add( params, 'gradientMap', ['threeTone', 'fourTone', 'fiveTone', 'sixTone'] ).onChange( function (value) {
 					toonMaterial.gradientMap = eval(value);
 				} );
@@ -291,9 +448,16 @@
 				render();
 				stats.end();
 			}
-
+			
+			let prevTime = Date.now();
 			function render() {
-				var timer = Date.now() * 0.00025;
+				if ( mixer ) {
+					let time = Date.now();
+					mixer.update( ( time - prevTime ) * 0.001 );
+					prevTime = time;
+				}
+
+				let timer = Date.now() * 0.00025;
 
 				//camera.position.x = Math.cos( timer ) * 800;
 				//camera.position.z = Math.sin( timer ) * 800;
@@ -400,38 +564,7 @@
                 el.setAttribute('progress', 75);
         };
 		</script>
-		<div class="overlay">
-			<div class="player">
-				<progress-ring stroke="8" radius="40" progress="100" player="P1">
-				</progress-ring>
-			</div>
-			<div class="time">
-				08:00
-			</div>
-			<div class="player">
-				<progress-ring stroke="8" radius="40" progress="100" player="P2">
-				</progress-ring>
-			</div>
-		</div>
 		<div id="game" class="game">
-		</div>
-		<div class="action">
-			<button class="grab">Grab</button>
-			<button class="attack">Attack</button>
-			<button class="special">Special</button>
-		</div>
-		<div class="top">
-			<button id="jump" class="jump" onclick="myFunction()">Jump</button>
-		</div>
-		<div class="middle">
-			<button id="left" class="move">Left</button>
-			<button class="block">Block</button>
-			<button id="right" class="move">Right</button>
-		</div>
-		<div class="bottom">
-			<button class="hop">Hop Left</button>
-			<button class="down">Down</button>
-			<button class="hop">Hop Right</button>
 		</div>
 	</body>
 </html>
