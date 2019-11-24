@@ -72,7 +72,7 @@ var PixelShader = {
 		"color[3] = 40.0/360.0;",
 		"color[4] = 50.0/360.0;",
 		"color[5] = 110.0/360.0;",
-		"color[6] = 200.0/360.0;",
+		"color[6] = 210.0/360.0;",
 		"color[7] = 275.0/360.0;",
 		// Find the color in the key that is closest to the rendered pixel
 		"float minDistance = abs(hsvColor.x - color[0]);",
@@ -86,6 +86,7 @@ var PixelShader = {
 		"  }",
 		"}",
 		// Brightness key for limited values brightness can be
+		// TODO: Change this to 4 colors to match the four tones of the material
 		"float brightness[5];",
 		"brightness[0] = 0.4;",
 		"brightness[1] = 0.5;",
@@ -97,6 +98,7 @@ var PixelShader = {
 		"minDistance = abs(compressedBrightness - brightness[0]);",
 		"float closestBrightness = color[0];",
 		"float hueShift;",
+		"float saturationShift;",
 		"for(int i = 0; i < 5; i++) {",
 		"  currentDistance = abs(compressedBrightness - brightness[i]);",
 		"  if(currentDistance <= minDistance) {",
@@ -104,14 +106,17 @@ var PixelShader = {
 		"    closestBrightness = brightness[i];",
 		//   Shift the hue by 7 degreess (-14, -7, 0, +7, +14) towards blue if it's darker or yellow if it's lighter
 		"    hueShift = float(i-2) * (7.0/360.0);",
+		//   Shift the hue by 5 percent (-0.1, -0.05, 0, -0.05, -0.1) towards grey if brighter or darker
+		"    saturationShift = -abs(float(i-2)) * 0.05;",
 		"  }",
 		"}",
-		"if (hsvColor.y < 0.3)",
-		// If the saturation is low, then the color is between black and white on the greyscale
-		"  gl_FragColor = vec4(hsv2rgb(vec3(0.0, 0.0, hsvColor.z)), 1.0);",
+		// If saturation is low then color is black, grey, white, or skin and hair colors
+		"if (hsvColor.y < 0.4)",
+		"  gl_FragColor = vec4(hsv2rgb(vec3(hsvColor.x + hueShift, hsvColor.y, hsvColor.z)), 1.0);",
 		"else {",
 		// Hue should be one of the colors from the color key, saturation should be constant, and brightness should be from the brightness key
-		"  gl_FragColor = vec4(hsv2rgb(vec3(closestColor + hueShift, 0.7, closestBrightness)), 1.0);",
+		// TODO: Switch back to this: "  gl_FragColor = vec4(hsv2rgb(vec3(closestColor + hueShift, 0.7 + saturationShift, closestBrightness)), 1.0);",
+		"  gl_FragColor = vec4(hsv2rgb(vec3(closestColor + hueShift, 0.7 + saturationShift, closestBrightness)), 1.0);",
 		"}",
 		"}"
 

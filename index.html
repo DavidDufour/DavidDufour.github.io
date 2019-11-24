@@ -106,8 +106,8 @@
 				outlinePass.edgeStrength = 10;
 				outlinePass.edgeGlow = 0;
 				outlinePass.edgeThickness = 1;
-				// outlinePass.visibleEdgeColor = '#ffffff';
-				// outlinePass.hiddenEdgeColor = '#000000';
+				outlinePass.visibleEdgeColor.set('#ffffff');
+				outlinePass.hiddenEdgeColor.set('#000000');
 				outlinePass.selectedObjects = [];
 				composer.addPass( outlinePass );
 
@@ -137,63 +137,68 @@
 				};
 
 				// Spheres
-				var geometry = new THREE.SphereGeometry( 32, 32, 32 );
+				let geometry = new THREE.SphereGeometry( 32, 32, 32 );
 				let threeTone = new THREE.TextureLoader().load( 'textures/threeTone.jpg' );
 				let fourTone = new THREE.TextureLoader().load( 'textures/fourTone.jpg' );
 				let fiveTone = new THREE.TextureLoader().load( 'textures/fiveTone.jpg' );
 				let sixTone = new THREE.TextureLoader().load( 'textures/sixTone.jpg' );
-				var material = new THREE.MeshToonMaterial( {
-										color: 0xff0000,
-										gradientMap: threeTone,
-										specular: '#111111',
-										reflectivity: 0.2,
-										shininess: 0
-									} );
-				var sphere = new THREE.Mesh( geometry, material );
-				sphere.position.x += -96*2;
+
+				// The pixel shader removes the need for MeshToonMaterial as it creates brightness steps
+				function sphereMaterial(color) { 
+					return new THREE.MeshToonMaterial( {
+						color: color,
+						gradientMap: fourTone,
+						specular: '#111111',
+						reflectivity: 0.2,
+						shininess: 0
+					} );
+				}
+				let sphere = new THREE.Mesh( geometry, sphereMaterial(0xCC3D3D) );
+				sphere.position.x += -96*2.5;
 				sphere.position.y += 200;
+				outlinePass.selectedObjects.push(sphere);
 				scene.add( sphere );
-				material = new THREE.MeshToonMaterial( {
-										color: 0xff7f00,
-										gradientMap: fourTone,
-										specular: '#111111',
-										reflectivity: 0.2,
-										shininess: 0
-									} );
-				sphere = new THREE.Mesh( geometry, material );
-				sphere.position.x += -64*2;
+
+				sphere = new THREE.Mesh( geometry, sphereMaterial(0xCC6D3D) );
+				sphere.position.x += -64*2.5;
 				sphere.position.y += 200;
+				outlinePass.selectedObjects.push(sphere);
 				scene.add( sphere );
-				material =  new THREE.MeshToonMaterial( {
-										color: 0xffff00,
-										gradientMap: fiveTone,
-										specular: '#111111',
-										reflectivity: 0.2,
-										shininess: 0
-									} );
-				sphere = new THREE.Mesh( geometry, material );
-				sphere.position.x += -32*2;
+
+				sphere = new THREE.Mesh( geometry, sphereMaterial(0xCC853D) );
+				sphere.position.x += -32*2.5;
 				sphere.position.y += 200;
+				outlinePass.selectedObjects.push(sphere);
 				scene.add( sphere );
-				material = new THREE.MeshPhongMaterial ( {color: 0x00ff00} );
-				sphere = new THREE.Mesh( geometry, material );
+
+				sphere = new THREE.Mesh( geometry, sphereMaterial(0xCC9C3D) );
 				sphere.position.x += 0;
 				sphere.position.y += 200;
+				outlinePass.selectedObjects.push(sphere);
 				scene.add( sphere );
-				material = new THREE.MeshLambertMaterial( {color: 0x0000ff} );
-				sphere = new THREE.Mesh( geometry, material );
-				sphere.position.x += 32*2;
+
+				sphere = new THREE.Mesh( geometry, sphereMaterial(0xCCB43D) );
+				sphere.position.x += 32*2.5;
 				sphere.position.y += 200;
+				outlinePass.selectedObjects.push(sphere);
 				scene.add( sphere );
-				material = new THREE.MeshDepthMaterial( {color: 0x2e2b5f} );
-				sphere = new THREE.Mesh( geometry, material );
-				sphere.position.x += 64*2;
+
+				sphere = new THREE.Mesh( geometry, sphereMaterial(0x55CC3D) );
+				sphere.position.x += 64*2.5;
 				sphere.position.y += 200;
+				outlinePass.selectedObjects.push(sphere);
 				scene.add( sphere );
-				material = new THREE.MeshBasicMaterial( {color: 0x8b00ff} );
-				sphere = new THREE.Mesh( geometry, material );
-				sphere.position.x += 96*2;
+
+				sphere = new THREE.Mesh( geometry, sphereMaterial(0x3D85CC) );
+				sphere.position.x += 96*2.5;
 				sphere.position.y += 200;
+				outlinePass.selectedObjects.push(sphere);
+				scene.add( sphere );
+
+				sphere = new THREE.Mesh( geometry, sphereMaterial(0x903DCC) );
+				sphere.position.x += 128*2.5;
+				sphere.position.y += 200;
+				outlinePass.selectedObjects.push(sphere);
 				scene.add( sphere );
 
 				// Skybox
