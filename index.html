@@ -233,7 +233,7 @@
 				}
 				let skyboxGeo = new THREE.BoxGeometry( 5000, 5000, 5000);
 				let skybox = new THREE.Mesh( skyboxGeo, materialArray );
-				//scene.add( skybox ); 
+				scene.add( skybox ); 
 
 				// Toon material
 				threeTone.minFilter = fourTone.minFilter = fiveTone.minFilter = sixTone.minFilter = THREE.NearestFilter;
