@@ -32,8 +32,8 @@ var PixelShader = {
 	fragmentShader: [
 
 		"uniform sampler2D tDiffuse;",
-		"uniform float pixelSize;",
 		"uniform vec2 resolution;",
+		"uniform float pixelSize;",
 
 		"varying highp vec2 vUv;",
 
@@ -55,6 +55,37 @@ var PixelShader = {
 		"	return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);",
 		"}",
 
+		// Shift distance is one of {-2, -1, 0, 1, 2}
+		"float calculateHueShift(float hue, int shiftDistance)",
+		"{",
+		// The maximum amount to shift by
+		"	float shiftConstant = 16.0;",
+		"	float hueShift = hue * 360.0;",
+		"	if (hueShift < 60.0) {",
+		// Edge case where hue shifts below 0 degrees
+		"	  hueShift += 360.0;",
+		// Don't shift yellow (hue = 60), maximum distance is 90 degrees from yellow
+		"	  hueShift += ((60.0 - hue) / 90.0 ) * shiftConstant * float(shiftDistance);",
+		// Change back to [0,360] degrees
+		"	  hueShift = mod(hueShift, 360.0);",
+		"	}",
+		"	else if (hueShift > 240.0) {",
+		// Don't shift blue (hue = 240), maximum distance is 90 degrees from blue
+		"	  hueShift -= ((hue - 240.0) / 180.0 ) * shiftConstant * float(shiftDistance);",
+		"	  hueShift = mod(hueShift, 360.0);",
+		"	}",
+		"	else if (hueShift > 60.0 || hue < 240.0) {",
+		"	  if (shiftDistance < 0) {",
+		"	    hueShift += ((hue - 60.0) / 180.0 ) * shiftConstant * float(shiftDistance);",
+		"	  }",
+		"	  else if (shiftDistance > 0) {",
+		"	    hueShift -= ((240.0 - hue) / 180.0 ) * shiftConstant * float(shiftDistance);",
+		"	  }",
+		"	  hueShift = mod(hueShift, 360.0);",
+		"	}",
+		"	return (hueShift / 360.0);",
+		"}",
+
 		"void main() {",
 
 		"vec2 dxy = pixelSize / resolution;",
@@ -65,24 +96,23 @@ var PixelShader = {
 		// Convert RGB to HSV
 		"vec3 hsvColor = rgb2hsv(vec3(pixelColor.r, pixelColor.g, pixelColor.b));",
 		// Color key of limited output color set
-		"float color[8];",
-		"color[0] = 0.0;",
-		"color[1] = 20.0/360.0;",
-		"color[2] = 30.0/360.0;",
-		"color[3] = 40.0/360.0;",
-		"color[4] = 50.0/360.0;",
-		"color[5] = 110.0/360.0;",
-		"color[6] = 210.0/360.0;",
-		"color[7] = 275.0/360.0;",
-		// Find the color in the key that is closest to the rendered pixel
-		"float minDistance = abs(hsvColor.x - color[0]);",
+		"float hue[7];",
+		"hue[0] = 0.0/360.0;",
+		"hue[1] = 20.0/360.0;",
+		"hue[2] = 40.0/360.0;",
+		"hue[3] = 50.0/360.0;",
+		"hue[4] = 110.0/360.0;",
+		"hue[5] = 210.0/360.0;",
+		"hue[6] = 275.0/360.0;",
+		// Find the hue in the key that is closest to the rendered pixel
+		"float minDistance = abs(hsvColor.x - hue[0]);",
 		"float currentDistance;",
-		"float closestColor = color[0];",
-		"for(int i = 1; i < 8; i++) {",
-		"  currentDistance = abs(hsvColor.x - color[i]);",
+		"float closestColor = hue[0];",
+		"for(int i = 1; i < 7; i++) {",
+		"  currentDistance = abs(hsvColor.x - hue[i]);",
 		"  if(currentDistance <= minDistance) {",
 		"    minDistance = currentDistance;",
-		"    closestColor = color[i];",
+		"    closestColor = hue[i];",
 		"  }",
 		"}",
 		// Brightness key for limited values brightness can be
@@ -96,8 +126,8 @@ var PixelShader = {
 		// Compress the brightness to between 40% and 80%
 		"float compressedBrightness = 0.4 * hsvColor.z + 0.4;",
 		"minDistance = abs(compressedBrightness - brightness[0]);",
-		"float closestBrightness = color[0];",
-		"float hueShift;",
+		"float closestBrightness = brightness[0];",
+		"int hueShift;",
 		"float saturationShift;",
 		"for(int i = 0; i < 5; i++) {",
 		"  currentDistance = abs(compressedBrightness - brightness[i]);",
@@ -105,18 +135,17 @@ var PixelShader = {
 		"    minDistance = currentDistance;",
 		"    closestBrightness = brightness[i];",
 		//   Shift the hue by 7 degreess (-14, -7, 0, +7, +14) towards blue if it's darker or yellow if it's lighter
-		"    hueShift = float(i-2) * (7.0/360.0);",
+		"    hueShift = i - 2;",
 		//   Shift the hue by 5 percent (-0.1, -0.05, 0, -0.05, -0.1) towards grey if brighter or darker
 		"    saturationShift = -abs(float(i-2)) * 0.05;",
 		"  }",
 		"}",
 		// If saturation is low then color is black, grey, white, or skin and hair colors
 		"if (hsvColor.y < 0.4)",
-		"  gl_FragColor = vec4(hsv2rgb(vec3(hsvColor.x + hueShift, hsvColor.y, hsvColor.z)), 1.0);",
+		"  gl_FragColor = vec4(hsv2rgb(vec3(hsvColor.x, hsvColor.y, hsvColor.z)), 1.0);",
 		"else {",
 		// Hue should be one of the colors from the color key, saturation should be constant, and brightness should be from the brightness key
-		// TODO: Switch back to this: "  gl_FragColor = vec4(hsv2rgb(vec3(closestColor + hueShift, 0.7 + saturationShift, closestBrightness)), 1.0);",
-		"  gl_FragColor = vec4(hsv2rgb(vec3(closestColor + hueShift, 0.7 + saturationShift, closestBrightness)), 1.0);",
+		"  gl_FragColor = vec4(hsv2rgb(vec3(calculateHueShift(closestColor, hueShift), 0.7 + saturationShift, closestBrightness)), 1.0);",
 		"}",
 		"}"
 

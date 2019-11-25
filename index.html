@@ -154,49 +154,37 @@
 					} );
 				}
 				let sphere = new THREE.Mesh( geometry, sphereMaterial(0xCC3D3D) );
-				sphere.position.x += -96*2.5;
+				sphere.position.x += -90*2.5;
 				sphere.position.y += 200;
 				outlinePass.selectedObjects.push(sphere);
 				scene.add( sphere );
 
 				sphere = new THREE.Mesh( geometry, sphereMaterial(0xCC6D3D) );
-				sphere.position.x += -64*2.5;
-				sphere.position.y += 200;
-				outlinePass.selectedObjects.push(sphere);
-				scene.add( sphere );
-
-				sphere = new THREE.Mesh( geometry, sphereMaterial(0xCC853D) );
-				sphere.position.x += -32*2.5;
+				sphere.position.x += -60*2.5;
 				sphere.position.y += 200;
 				outlinePass.selectedObjects.push(sphere);
 				scene.add( sphere );
 
 				sphere = new THREE.Mesh( geometry, sphereMaterial(0xCC9C3D) );
-				sphere.position.x += 0;
-				sphere.position.y += 200;
-				outlinePass.selectedObjects.push(sphere);
-				scene.add( sphere );
-
-				sphere = new THREE.Mesh( geometry, sphereMaterial(0xCCB43D) );
-				sphere.position.x += 32*2.5;
+				sphere.position.x += -30*2.5;
 				sphere.position.y += 200;
 				outlinePass.selectedObjects.push(sphere);
 				scene.add( sphere );
 
 				sphere = new THREE.Mesh( geometry, sphereMaterial(0x55CC3D) );
-				sphere.position.x += 64*2.5;
+				sphere.position.x += 0*2.5;
 				sphere.position.y += 200;
 				outlinePass.selectedObjects.push(sphere);
 				scene.add( sphere );
 
 				sphere = new THREE.Mesh( geometry, sphereMaterial(0x3D85CC) );
-				sphere.position.x += 96*2.5;
+				sphere.position.x += 30*2.5;
 				sphere.position.y += 200;
 				outlinePass.selectedObjects.push(sphere);
 				scene.add( sphere );
 
 				sphere = new THREE.Mesh( geometry, sphereMaterial(0x903DCC) );
-				sphere.position.x += 128*2.5;
+				sphere.position.x += 60*2.5;
 				sphere.position.y += 200;
 				outlinePass.selectedObjects.push(sphere);
 				scene.add( sphere );
@@ -569,7 +557,38 @@
                 el.setAttribute('progress', 75);
         };
 		</script>
+		<div class="overlay">
+			<div class="player">
+				<progress-ring stroke="8" radius="40" progress="100" player="P1">
+				</progress-ring>
+			</div>
+			<div class="time">
+				08:00
+			</div>
+			<div class="player">
+				<progress-ring stroke="8" radius="40" progress="100" player="P2">
+				</progress-ring>
+			</div>
+		</div>
 		<div id="game" class="game">
+		</div>
+		<div class="action">
+			<button class="grab">Grab</button>
+			<button class="attack">Attack</button>
+			<button class="special">Special</button>
+		</div>
+		<div class="top">
+			<button id="jump" class="jump" onclick="myFunction()">Jump</button>
+		</div>
+		<div class="middle">
+			<button id="left" class="move">Left</button>
+			<button class="block">Block</button>
+			<button id="right" class="move">Right</button>
+		</div>
+		<div class="bottom">
+			<button class="hop">Hop Left</button>
+			<button class="down">Down</button>
+			<button class="hop">Hop Right</button>
 		</div>
 	</body>
 </html>
