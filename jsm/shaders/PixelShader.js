@@ -55,35 +55,61 @@ var PixelShader = {
 		"	return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);",
 		"}",
 
-		// Shift distance is one of {-2, -1, 0, 1, 2}
+		/*
+		 * hue: Color in the range of [0,1]
+		 * shiftDistance: how many steps to shift hue towards blue or yellow {-2, -1, 0, 1, 2}
+		 */
 		"float calculateHueShift(float hue, int shiftDistance)",
 		"{",
-		// The maximum amount to shift by
-		"	float shiftConstant = 16.0;",
-		"	float hueShift = hue * 360.0;",
-		"	if (hueShift < 60.0) {",
-		// Edge case where hue shifts below 0 degrees
-		"	  hueShift += 360.0;",
-		// Don't shift yellow (hue = 60), maximum distance is 90 degrees from yellow
-		"	  hueShift += ((60.0 - hue) / 90.0 ) * shiftConstant * float(shiftDistance);",
-		// Change back to [0,360] degrees
-		"	  hueShift = mod(hueShift, 360.0);",
-		"	}",
-		"	else if (hueShift > 240.0) {",
-		// Don't shift blue (hue = 240), maximum distance is 90 degrees from blue
-		"	  hueShift -= ((hue - 240.0) / 180.0 ) * shiftConstant * float(shiftDistance);",
-		"	  hueShift = mod(hueShift, 360.0);",
-		"	}",
-		"	else if (hueShift > 60.0 || hue < 240.0) {",
+			// The maximum amount to shift by
+		"	float shiftConstant = 18.0;",
+			// Convert from [0,1] to color wheel [0,360]
+		"	float shiftedHue = hue * 360.0;",
+			// Red to Yellow on the color wheel (includes orange)
+		"	if (shiftedHue < 60.0) {",
+		      // Darken by shifting to blue
 		"	  if (shiftDistance < 0) {",
-		"	    hueShift += ((hue - 60.0) / 180.0 ) * shiftConstant * float(shiftDistance);",
+		"	    shiftedHue += ((180.0 - shiftedHue) / 180.0 ) * shiftConstant * float(shiftDistance);",
 		"	  }",
+			  // Brighten by shifting to yellow
 		"	  else if (shiftDistance > 0) {",
-		"	    hueShift -= ((240.0 - hue) / 180.0 ) * shiftConstant * float(shiftDistance);",
+		 		// Don't shift yellow (shiftedHue = 60), maximum distance is 180 degrees from yellow
+		"	    shiftedHue += ((60.0 - shiftedHue) / 180.0 ) * shiftConstant * float(shiftDistance);",
 		"	  }",
-		"	  hueShift = mod(hueShift, 360.0);",
+			  // Change back to [0,360] degrees
+		"	  shiftedHue = mod(shiftedHue, 360.0);",
 		"	}",
-		"	return (hueShift / 360.0);",
+			// Blue to red on the color wheel (includes purple)
+		"	else if (shiftedHue > 240.0) {",
+			  // Darken by shifting to blue
+  		"	  if (shiftDistance < 0) {",
+			    // Don't shift blue (shiftedHue = 240), maximum distance is 180 degrees from blue
+		"	    shiftedHue += ((shiftedHue - 240.0) / 180.0 ) * shiftConstant * float(shiftDistance);",
+		"	  }",
+			  // Brighten by shifting to yellow
+		"	  else if (shiftDistance > 0) {",
+		"	    shiftedHue += ((420.0 - shiftedHue) / 180.0 ) * shiftConstant * float(shiftDistance);",
+		"	  }",
+			  // Change back to [0,360] degrees
+		"	  shiftedHue = mod(shiftedHue, 360.0);",
+		"	}",
+			// Yellow to blue on the color wheel (includes green)
+		"	else if (shiftedHue > 60.0 || shiftedHue < 240.0) {",
+			  // Darken by shifting to blue
+		"	  if (shiftDistance < 0) {",
+				// Don't shift blue (shiftedHue = 240), maximum distance is 180 degrees from blue
+		"	    shiftedHue -= ((240.0 - shiftedHue) / 180.0 ) * shiftConstant * float(shiftDistance);",
+		"	  }",
+			  // Brighten by shifting to yellow
+		"	  else if (shiftDistance > 0) {",
+				// Don't shift yellow (shiftedHue = 60), maximum distance is 180 degrees from yellow
+		"	    shiftedHue -= ((shiftedHue - 60.0) / 180.0 ) * shiftConstant * float(shiftDistance);",
+		"	  }",
+			  // Change back to [0,360] degrees
+		"	  shiftedHue = mod(shiftedHue, 360.0);",
+		"	}",
+			// Convert from color wheel [0,360] to [0,1]
+		"	return (shiftedHue / 360.0);",
 		"}",
 
 		"void main() {",
