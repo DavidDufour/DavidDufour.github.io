@@ -4,8 +4,6 @@
  * Pixelation shader
  */
 
-
-
 var PixelShader = {
 
 	uniforms: {

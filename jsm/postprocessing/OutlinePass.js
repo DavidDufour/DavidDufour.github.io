@@ -3,7 +3,7 @@
  */
 
 import {
-	AdditiveBlending,
+	NormalBlending,
 	Color,
 	DoubleSide,
 	LinearFilter,
@@ -18,9 +18,9 @@ import {
 	Vector2,
 	Vector3,
 	WebGLRenderTarget
-} from "../../../build/three.module.js";
-import { Pass } from "../postprocessing/Pass.js";
-import { CopyShader } from "../shaders/CopyShader.js";
+} from "https://rawgit.com/mrdoob/three.js/dev/build/three.module.js";
+import { Pass } from "https://rawgit.com/mrdoob/three.js/dev/examples/jsm/postprocessing/Pass.js";
+import { CopyShader } from "https://rawgit.com/mrdoob/three.js/dev/examples/jsm/shaders/CopyShader.js";
 
 var OutlinePass = function ( resolution, scene, camera, selectedObjects ) {
 
@@ -487,8 +487,8 @@ OutlinePass.prototype = Object.assign( Object.create( Pass.prototype ), {
 					float a1 = min(c1.g, c2.g);\
 					float a2 = min(c3.g, c4.g);\
 					float visibilityFactor = min(a1, a2);\
-					vec3 edgeColor = 1.0 - visibilityFactor > 0.001 ? visibleEdgeColor : hiddenEdgeColor;\
-					gl_FragColor = vec4(edgeColor, 1.0) * vec4(d);\
+					vec4 edgeColor = 1.0 - visibilityFactor > 0.001 ? vec4(visibleEdgeColor, 1.0) : vec4(hiddenEdgeColor, 0.0);\
+					gl_FragColor = edgeColor * vec4(d);\
 				}"
 		} );
 
@@ -590,7 +590,7 @@ OutlinePass.prototype = Object.assign( Object.create( Pass.prototype ), {
 						finalColor += + visibilityFactor * (1.0 - maskColor.r) * (1.0 - patternColor.r);\
 					gl_FragColor = finalColor;\
 				}",
-			blending: AdditiveBlending,
+			blending: NormalBlending,
 			depthTest: false,
 			depthWrite: false,
 			transparent: true
