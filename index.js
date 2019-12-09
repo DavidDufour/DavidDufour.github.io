@@ -11,6 +11,7 @@ import { GUI } from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/libs/da
 import { EffectComposer } from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/postprocessing/RenderPass.js';
 import { ShaderPass } from 'https://rawgit.com/mrdoob/three.js/dev/examples/jsm/postprocessing/ShaderPass.js';
+import { ColorShader } from './jsm/shaders/ColorShader.js';
 import { OutlinePass } from './jsm/postprocessing/OutlinePass.js';
 import { PixelShader } from './jsm/shaders/PixelShader.js';
 
@@ -18,7 +19,7 @@ let container, stats;
 
 let camera, scene, renderer, effect, gui, composer;
 let particleLight;
-let pixelPass, outlinePass, params;
+let colorPass, pixelPass, params;
 let tanModel, moveRight, moveLeft;
 
 function init() {
@@ -69,16 +70,40 @@ function init() {
     composer = new EffectComposer( renderer );
     composer.addPass( new RenderPass( scene, camera ) );
 
+    // Hue & Saturation shifting in shadows and highlights
+    colorPass = new ShaderPass( ColorShader );
+    composer.addPass( colorPass );
+
     // Outline
-    outlinePass = new OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), scene, camera );
-    outlinePass.enabled = false;
-    outlinePass.edgeStrength = 10;
-    outlinePass.edgeGlow = 0;
-    outlinePass.edgeThickness = 1;
-    outlinePass.visibleEdgeColor.set('#000000');
-    outlinePass.hiddenEdgeColor.set('#000000');
-    outlinePass.selectedObjects = [];
-    composer.addPass( outlinePass );
+    let stageOutline = new OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), scene, camera );
+    stageOutline.enabled = true;
+    stageOutline.edgeStrength = 10;
+    stageOutline.edgeGlow = 0;
+    stageOutline.edgeThickness = 1;
+    stageOutline.visibleEdgeColor.set('#000000');
+    stageOutline.hiddenEdgeColor.set('#000000');
+    stageOutline.selectedObjects = [];
+    composer.addPass( stageOutline );
+
+    let redTeamOutline = new OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), scene, camera );
+    redTeamOutline.enabled = true;
+    redTeamOutline.edgeStrength = 10;
+    redTeamOutline.edgeGlow = 0;
+    redTeamOutline.edgeThickness = 1;
+    redTeamOutline.visibleEdgeColor.set('#FF0000');
+    redTeamOutline.hiddenEdgeColor.set('#000000');
+    redTeamOutline.selectedObjects = [];
+    composer.addPass( redTeamOutline );
+
+    let blueTeamOutline = new OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), scene, camera );
+    blueTeamOutline.enabled = true;
+    blueTeamOutline.edgeStrength = 10;
+    blueTeamOutline.edgeGlow = 0;
+    blueTeamOutline.edgeThickness = 1;
+    blueTeamOutline.visibleEdgeColor.set('#0000FF');
+    blueTeamOutline.hiddenEdgeColor.set('#000000');
+    blueTeamOutline.selectedObjects = [];
+    composer.addPass( blueTeamOutline );
 
     // Pixelization
     pixelPass = new ShaderPass( PixelShader );
@@ -91,13 +116,14 @@ function init() {
     params = {
         postprocessing: true,
         backgroundColor: '#111111',
+        hueShift: true,
         pixelize: true,
         pixelSize: 4,
         gradientMap: 'fourTone',
         specular: '#111111',
         reflectivity: 0.2,
         shininess: 0.0,
-        outline: false,
+        outline: true,
         edgeStrength: 10,
         edgeGlow: 0.0,
         edgeThickness: 1,
@@ -130,37 +156,37 @@ function init() {
     let sphere = new THREE.Mesh( geometry, sphereMaterial(0xCC3D3D) );
     sphere.position.x += -90*2.5;
     sphere.position.y += 200;
-    outlinePass.selectedObjects.push(sphere);
+    stageOutline.selectedObjects.push(sphere);
     scene.add( sphere );
 
     sphere = new THREE.Mesh( geometry, sphereMaterial(0xCC6D3D) );
     sphere.position.x += -60*2.5;
     sphere.position.y += 200;
-    outlinePass.selectedObjects.push(sphere);
+    stageOutline.selectedObjects.push(sphere);
     scene.add( sphere );
 
     sphere = new THREE.Mesh( geometry, sphereMaterial(0xCC9C3D) );
     sphere.position.x += -30*2.5;
     sphere.position.y += 200;
-    outlinePass.selectedObjects.push(sphere);
+    stageOutline.selectedObjects.push(sphere);
     scene.add( sphere );
 
     sphere = new THREE.Mesh( geometry, sphereMaterial(0x55CC3D) );
     sphere.position.x += 0*2.5;
     sphere.position.y += 200;
-    outlinePass.selectedObjects.push(sphere);
+    stageOutline.selectedObjects.push(sphere);
     scene.add( sphere );
 
     sphere = new THREE.Mesh( geometry, sphereMaterial(0x3D85CC) );
     sphere.position.x += 30*2.5;
     sphere.position.y += 200;
-    outlinePass.selectedObjects.push(sphere);
+    stageOutline.selectedObjects.push(sphere);
     scene.add( sphere );
 
     sphere = new THREE.Mesh( geometry, sphereMaterial(0x903DCC) );
     sphere.position.x += 60*2.5;
     sphere.position.y += 200;
-    outlinePass.selectedObjects.push(sphere);
+    stageOutline.selectedObjects.push(sphere);
     scene.add( sphere );
 
     // Skybox
@@ -195,7 +221,7 @@ function init() {
     }
     let skyboxGeo = new THREE.BoxGeometry( 5000, 5000, 5000);
     let skybox = new THREE.Mesh( skyboxGeo, materialArray );
-    //scene.add( skybox ); 
+    scene.add( skybox ); 
 
     // Desert model
     let fbxLoader = new FBXLoader();
@@ -225,6 +251,7 @@ function init() {
                 }
             );
             scene.add( fbx );
+            stageOutline.selectedObjects.push(fbx);
             fbx.rotateX(THREE.Math.degToRad(-93));
             fbx.translateY( 290 );
             fbx.translateZ( -60 );
@@ -267,7 +294,7 @@ function init() {
                 }
             );
             scene.add( fbx );
-            outlinePass.selectedObjects.push(fbx);
+            blueTeamOutline.selectedObjects.push(fbx);
             fbx.rotateX(THREE.Math.degToRad(-90));
             fbx.rotateY(THREE.Math.degToRad(0));
             fbx.rotateZ(THREE.Math.degToRad(-100));
@@ -283,7 +310,6 @@ function init() {
     );
 
     // Fiverr model
-    let fiverrMesh;
     let fiverrLoader = new FBXLoader();
     fiverrLoader.load( 'models/fiverr/character1.fbx',
         function( fbx ) {
@@ -293,7 +319,6 @@ function init() {
                         child.castShadow = true;
                         child.receiveShadow = true;
 
-                        fiverrMesh = child;
                         child.scale.set(100,100,100);
 
                         child.material = new THREE.MeshToonMaterial( {
@@ -312,7 +337,7 @@ function init() {
                 }
             );
             scene.add( fbx );
-            outlinePass.selectedObjects.push(fbx);
+            redTeamOutline.selectedObjects.push(fbx);
             fbx.rotateX(THREE.Math.degToRad(0));
             fbx.rotateY(THREE.Math.degToRad(180));
             fbx.rotateZ(THREE.Math.degToRad(0));
@@ -348,6 +373,11 @@ function init() {
         tanMesh.material.reflectivity = value;
     } );
 
+    folder = gui.addFolder( 'Hue Shift' );
+    folder.add( params, 'hueShift' ).onChange( function ( value ) {
+        colorPass.enabled = Boolean( value );
+    } );
+
     folder = gui.addFolder( 'Pixel Art' );
     folder.add( params, 'pixelize' ).onChange( function ( value ) {
         pixelPass.enabled = Boolean( value );
@@ -358,22 +388,34 @@ function init() {
 
     folder = gui.addFolder( 'Outline' );
     folder.add( params, 'outline' ).onChange( function ( value ) {
-        outlinePass.enabled = Boolean( value );
+        redTeamOutline.enabled = Boolean( value );
+        blueTeamOutline.enabled = Boolean( value );
+        stageOutline.enabled = Boolean( value );
     } );
     folder.add( params, 'edgeStrength', 0.01, 10 ).onChange( function ( value ) {
-        outlinePass.edgeStrength = Number( value );
+        redTeamOutline.edgeStrength = Number( value );
+        blueTeamOutline.edgeStrength = Number( value );
+        stageOutline.edgeStrength = Number( value );
     } );
     folder.add( params, 'edgeGlow', 0.0, 1 ).onChange( function ( value ) {
-        outlinePass.edgeGlow = Number( value );
+        redTeamOutline.edgeGlow = Number( value );
+        blueTeamOutline.edgeGlow = Number( value );
+        stageOutline.edgeGlow = Number( value );
     } );
     folder.add( params, 'edgeThickness', 1, 4 ).onChange( function ( value ) {
-        outlinePass.edgeThickness = Number( value );
+        redTeamOutline.edgeThickness = Number( value );
+        blueTeamOutline.edgeThickness = Number( value );
+        stageOutline.edgeThickness = Number( value );
     } );
     folder.addColor( params, 'visibleEdgeColor' ).onChange( function ( value ) {
-        outlinePass.visibleEdgeColor.set( value );
+        redTeamOutline.visibleEdgeColor.set( value );
+        blueTeamOutline.visibleEdgeColor.set( value );
+        stageOutline.visibleEdgeColor.set( value );
     } );
     folder.addColor( params, 'hiddenEdgeColor' ).onChange( function ( value ) {
-        outlinePass.hiddenEdgeColor.set( value );
+        redTeamOutline.hiddenEdgeColor.set( value );
+        blueTeamOutline.hiddenEdgeColor.set( value );
+        stageOutline.hiddenEdgeColor.set( value );
     } );
 }
 
