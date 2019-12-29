@@ -267,7 +267,7 @@ function init() {
     // Tan model
     let tanMesh;
     fbxLoader = new FBXLoader();
-    fbxLoader.load( 'models/Tan FBX 10.fbx',
+    fbxLoader.load( 'models/Tan/Tan Version 0.0/Tan FBX 10.fbx',
         function( fbx ) {
             fbx.traverse(
                 function( child ) {
@@ -284,10 +284,10 @@ function init() {
                             reflectivity: 0.2,
                             shininess: 0
                         } );
-                        let imgTexture = new THREE.TextureLoader().load( "models/Tan FBX 10_Tan.png" );
+                        let imgTexture = new THREE.TextureLoader().load( "models/Tan/Tan Version 0.0/Tan FBX 10_Tan.png" );
                         imgTexture.wrapS = imgTexture.wrapT = THREE.RepeatWrapping;
                         child.material.map = imgTexture;
-                        let bmpTexture = new THREE.TextureLoader().load( "models/Tan FBX 10_Tan_nrm.png" );
+                        let bmpTexture = new THREE.TextureLoader().load( "models/Tan/Tan Version 0.0/Tan FBX 10_Tan_nrm.png" );
                         bmpTexture.wrapS = bmpTexture.wrapT = THREE.RepeatWrapping;
                         child.material.bumpMap = bmpTexture;
                     }
@@ -311,7 +311,7 @@ function init() {
 
     // Fiverr model
     let fiverrLoader = new FBXLoader();
-    fiverrLoader.load( 'models/fiverr/TanV1.1/export.fbx',
+    fiverrLoader.load( 'models/Tan/Tan Version 1.3/export - Copie.fbx',
         function( tanFbx ) {
             tanFbx.traverse(
                 function( child ) {
@@ -329,27 +329,25 @@ function init() {
                             shininess: 0
                         } );
 
-                        let imgTexture = new THREE.TextureLoader().load( "models/fiverr/TanV1.1/" + child.name + "_TXTR.jpg" );
+                        let imgTexture = new THREE.TextureLoader().load( "models/Tan/Tan Version 1.3/" + child.name + "_TXTR.jpg" );
                         imgTexture.wrapS = imgTexture.wrapT = THREE.RepeatWrapping;
                         child.material.map = imgTexture;
-                        
-                        if(child.name !== "Extract21_01" && child.name !== "Extract12_01" && child.name !== "Extract4_1" && child.name !== "Extract22") {
-                            let bmpTexture = new THREE.TextureLoader().load( "models/fiverr/TanV1.1/" + child.name + "_NM.jpg" );
-                            bmpTexture.wrapS = bmpTexture.wrapT = THREE.RepeatWrapping;
-                            child.material.normalMap = bmpTexture;
-                            // let dispTexture = new THREE.TextureLoader().load( "models/fiverr/TanV1.1/" + child.name + "_DM.jpg" );
-                            // dispTexture.wrapS = dispTexture.wrapT = THREE.RepeatWrapping;
-                            // child.material.displacementMap = dispTexture;
-                        }
+                        let bmpTexture = new THREE.TextureLoader().load( "models/Tan/Tan Version 1.3/" + child.name + "_NM.jpg" );
+                        bmpTexture.wrapS = bmpTexture.wrapT = THREE.RepeatWrapping;
+                        child.material.normalMap = bmpTexture;
+                        // These files probably aren't needed and are quite large
+                        // let dispTexture = new THREE.TextureLoader().load( "models/Tan/Tan Version 1.3/" + child.name + "_DM.png" );
+                        // dispTexture.wrapS = dispTexture.wrapT = THREE.RepeatWrapping;
+                        // child.material.displacementMap = dispTexture;
                     }
                 }
             );
             redTeamOutline.selectedObjects.push(tanFbx);
             tanFbx.rotateX(THREE.Math.degToRad(0));
-            //tanFbx.rotateY(THREE.Math.degToRad(180));
-            tanFbx.rotateZ(THREE.Math.degToRad(0));
+            tanFbx.rotateY(THREE.Math.degToRad(180));
+            tanFbx.rotateZ(THREE.Math.degToRad(180));
             tanFbx.translateX( -150 );
-            tanFbx.translateY( -92 );
+            tanFbx.translateY( 95 );
             tanFbx.translateZ( 0 );
             scene.add( tanFbx );
         },
