@@ -76,7 +76,7 @@ function init() {
 
     // Outline
     let stageOutline = new OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), scene, camera );
-    stageOutline.enabled = true;
+    stageOutline.enabled = false;
     stageOutline.edgeStrength = 10;
     stageOutline.edgeGlow = 0;
     stageOutline.edgeThickness = 1;
@@ -86,7 +86,7 @@ function init() {
     composer.addPass( stageOutline );
 
     let redTeamOutline = new OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), scene, camera );
-    redTeamOutline.enabled = true;
+    redTeamOutline.enabled = false;
     redTeamOutline.edgeStrength = 10;
     redTeamOutline.edgeGlow = 0;
     redTeamOutline.edgeThickness = 1;
@@ -96,7 +96,7 @@ function init() {
     composer.addPass( redTeamOutline );
 
     let blueTeamOutline = new OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), scene, camera );
-    blueTeamOutline.enabled = true;
+    blueTeamOutline.enabled = false;
     blueTeamOutline.edgeStrength = 10;
     blueTeamOutline.edgeGlow = 0;
     blueTeamOutline.edgeThickness = 1;
@@ -123,7 +123,7 @@ function init() {
         specular: '#111111',
         reflectivity: 0.2,
         shininess: 0.0,
-        outline: true,
+        outline: false,
         edgeStrength: 10,
         edgeGlow: 0.0,
         edgeThickness: 1,
@@ -311,15 +311,16 @@ function init() {
 
     // Fiverr model
     let fiverrLoader = new FBXLoader();
-    fiverrLoader.load( 'models/fiverr/character1.fbx',
-        function( fbx ) {
-            fbx.traverse(
+    fiverrLoader.load( 'models/fiverr/TanV1.1/export.fbx',
+        function( tanFbx ) {
+            tanFbx.traverse(
                 function( child ) {
                     if ( child.isMesh ) {
+                        console.log(child)
                         child.castShadow = true;
                         child.receiveShadow = true;
 
-                        child.scale.set(100,100,100);
+                        child.scale.set(0.9,0.9,0.9);
 
                         child.material = new THREE.MeshToonMaterial( {
                             gradientMap: fourTone,
@@ -327,22 +328,30 @@ function init() {
                             reflectivity: 0.2,
                             shininess: 0
                         } );
-                        let imgTexture = new THREE.TextureLoader().load( "models/fiverr/texture map.jpg" );
+
+                        let imgTexture = new THREE.TextureLoader().load( "models/fiverr/TanV1.1/" + child.name + "_TXTR.jpg" );
                         imgTexture.wrapS = imgTexture.wrapT = THREE.RepeatWrapping;
                         child.material.map = imgTexture;
-                        let bmpTexture = new THREE.TextureLoader().load( "models/fiverr/normal map.jpg" );
-                        bmpTexture.wrapS = bmpTexture.wrapT = THREE.RepeatWrapping;
-                        child.material.normalMap = bmpTexture;
+                        
+                        if(child.name !== "Extract21_01" && child.name !== "Extract12_01" && child.name !== "Extract4_1" && child.name !== "Extract22") {
+                            let bmpTexture = new THREE.TextureLoader().load( "models/fiverr/TanV1.1/" + child.name + "_NM.jpg" );
+                            bmpTexture.wrapS = bmpTexture.wrapT = THREE.RepeatWrapping;
+                            child.material.normalMap = bmpTexture;
+                            // let dispTexture = new THREE.TextureLoader().load( "models/fiverr/TanV1.1/" + child.name + "_DM.jpg" );
+                            // dispTexture.wrapS = dispTexture.wrapT = THREE.RepeatWrapping;
+                            // child.material.displacementMap = dispTexture;
+                        }
                     }
                 }
             );
-            scene.add( fbx );
-            redTeamOutline.selectedObjects.push(fbx);
-            fbx.rotateX(THREE.Math.degToRad(0));
-            fbx.rotateY(THREE.Math.degToRad(180));
-            fbx.rotateZ(THREE.Math.degToRad(0));
-            fbx.translateX( 120 );
-            fbx.translateZ( 0 );
+            redTeamOutline.selectedObjects.push(tanFbx);
+            tanFbx.rotateX(THREE.Math.degToRad(0));
+            //tanFbx.rotateY(THREE.Math.degToRad(180));
+            tanFbx.rotateZ(THREE.Math.degToRad(0));
+            tanFbx.translateX( -150 );
+            tanFbx.translateY( -92 );
+            tanFbx.translateZ( 0 );
+            scene.add( tanFbx );
         },
         function( xhr ){
             console.log( (xhr.loaded / xhr.total * 100) + "% loaded")
