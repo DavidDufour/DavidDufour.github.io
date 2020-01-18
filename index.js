@@ -62,7 +62,7 @@ function init() {
     // TODO: Add slider for lights
     scene.add( new THREE.AmbientLight( 0x222222 ) );
 
-    let directionalLight = new THREE.DirectionalLight( 0xFFFFFF, 1 );
+    let directionalLight = new THREE.DirectionalLight( 0xFFFFFF, 1.0 );
     directionalLight.position.set( 1, 1, 1 ).normalize();
     scene.add( directionalLight );
 
@@ -146,46 +146,105 @@ function init() {
     function sphereMaterial(color) { 
         return new THREE.MeshToonMaterial( {
             color: color,
-            gradientMap: fiveTone,
+            gradientMap: fourTone,
             specular: '#111111',
-            reflectivity: 0.2,
             shininess: 0
         } );
     }
 
     let sphere = new THREE.Mesh( geometry, sphereMaterial(0xCC3D3D) );
-    sphere.position.x += -90*2.5;
+    sphere.position.x += -110*2.5;
     sphere.position.y += 200;
     stageOutline.selectedObjects.push(sphere);
     scene.add( sphere );
 
     sphere = new THREE.Mesh( geometry, sphereMaterial(0xCC6D3D) );
-    sphere.position.x += -60*2.5;
+    sphere.position.x += -80*2.5;
     sphere.position.y += 200;
     stageOutline.selectedObjects.push(sphere);
     scene.add( sphere );
 
     sphere = new THREE.Mesh( geometry, sphereMaterial(0xCC9C3D) );
-    sphere.position.x += -30*2.5;
+    sphere.position.x += -50*2.5;
     sphere.position.y += 200;
     stageOutline.selectedObjects.push(sphere);
     scene.add( sphere );
 
     sphere = new THREE.Mesh( geometry, sphereMaterial(0x55CC3D) );
-    sphere.position.x += 0*2.5;
+    sphere.position.x += -20*2.5;
     sphere.position.y += 200;
     stageOutline.selectedObjects.push(sphere);
     scene.add( sphere );
 
     sphere = new THREE.Mesh( geometry, sphereMaterial(0x3D85CC) );
-    sphere.position.x += 30*2.5;
+    sphere.position.x += 10*2.5;
     sphere.position.y += 200;
     stageOutline.selectedObjects.push(sphere);
     scene.add( sphere );
 
     sphere = new THREE.Mesh( geometry, sphereMaterial(0x903DCC) );
-    sphere.position.x += 60*2.5;
+    sphere.position.x += 40*2.5;
     sphere.position.y += 200;
+    stageOutline.selectedObjects.push(sphere);
+    scene.add( sphere );
+
+    sphere = new THREE.Mesh( geometry, sphereMaterial(0xA8A8A8) );
+    sphere.position.x += 70*2.5;
+    sphere.position.y += 275;
+    stageOutline.selectedObjects.push(sphere);
+    scene.add( sphere );
+
+    sphere = new THREE.Mesh( geometry, sphereMaterial(0x545454) );
+    sphere.position.x += 70*2.5;
+    sphere.position.y += 200;
+    stageOutline.selectedObjects.push(sphere);
+    scene.add( sphere );
+
+    sphere = new THREE.Mesh( geometry, sphereMaterial(0xFFFFFF) );
+    sphere.position.x += 100*2.5;
+    sphere.position.y += 275;
+    stageOutline.selectedObjects.push(sphere);
+    scene.add( sphere );
+
+    sphere = new THREE.Mesh( geometry, sphereMaterial(0x000000) );
+    sphere.position.x += 100*2.5;
+    sphere.position.y += 200;
+    stageOutline.selectedObjects.push(sphere);
+    scene.add( sphere );
+
+    sphere = new THREE.Mesh( geometry, sphereMaterial(0xFF0000) );
+    sphere.position.x += -110*2.5;
+    sphere.position.y += 275;
+    stageOutline.selectedObjects.push(sphere);
+    scene.add( sphere );
+
+    sphere = new THREE.Mesh( geometry, sphereMaterial(0xFFFF00) );
+    sphere.position.x += -80*2.5;
+    sphere.position.y += 275;
+    stageOutline.selectedObjects.push(sphere);
+    scene.add( sphere );
+
+    sphere = new THREE.Mesh( geometry, sphereMaterial(0x00FF00) );
+    sphere.position.x += -50*2.5;
+    sphere.position.y += 275;
+    stageOutline.selectedObjects.push(sphere);
+    scene.add( sphere );
+
+    sphere = new THREE.Mesh( geometry, sphereMaterial(0x00FFFF) );
+    sphere.position.x += -20*2.5;
+    sphere.position.y += 275;
+    stageOutline.selectedObjects.push(sphere);
+    scene.add( sphere );
+
+    sphere = new THREE.Mesh( geometry, sphereMaterial(0x0000FF) );
+    sphere.position.x += 10*2.5;
+    sphere.position.y += 275;
+    stageOutline.selectedObjects.push(sphere);
+    scene.add( sphere );
+
+    sphere = new THREE.Mesh( geometry, sphereMaterial(0xFF00FF) );
+    sphere.position.x += 40*2.5;
+    sphere.position.y += 275;
     stageOutline.selectedObjects.push(sphere);
     scene.add( sphere );
 
@@ -238,7 +297,6 @@ function init() {
                         child.material = new THREE.MeshToonMaterial( {
                             gradientMap: fourTone,
                             specular: '#111111',
-                            reflectivity: 0.2,
                             shininess: 0
                         } );
                         let imgTexture = new THREE.TextureLoader().load( 'models/desert/Desert_' + child.name + '.png' );
@@ -263,10 +321,9 @@ function init() {
             console.error( "Error loading 'Desert.fbx'")
         }
     );
-
+    
     // Tan model
     let tanMesh;
-    fbxLoader = new FBXLoader();
     fbxLoader.load( 'models/Tan/Tan Version 0.0/Tan FBX 10.fbx',
         function( fbx ) {
             fbx.traverse(
@@ -281,7 +338,6 @@ function init() {
                         child.material = new THREE.MeshToonMaterial( {
                             gradientMap: fourTone,
                             specular: '#111111',
-                            reflectivity: 0.2,
                             shininess: 0
                         } );
                         let imgTexture = new THREE.TextureLoader().load( "models/Tan/Tan Version 0.0/Tan FBX 10_Tan.png" );
@@ -293,13 +349,13 @@ function init() {
                     }
                 }
             );
+
+            fbx.translateX( -80 );
             scene.add( fbx );
-            blueTeamOutline.selectedObjects.push(fbx);
+            redTeamOutline.selectedObjects.push(fbx);
             fbx.rotateX(THREE.Math.degToRad(-90));
             fbx.rotateY(THREE.Math.degToRad(0));
             fbx.rotateZ(THREE.Math.degToRad(-100));
-            
-            tanModel = fbx;
         },
         function( xhr ){
             console.log( (xhr.loaded / xhr.total * 100) + "% loaded")
@@ -309,54 +365,58 @@ function init() {
         }
     );
 
-    // Fiverr model
-    let fiverrLoader = new FBXLoader();
-    fiverrLoader.load( 'models/Tan/Tan Version 1.3/export - Copie.fbx',
-        function( tanFbx ) {
-            tanFbx.traverse(
+    const tanColors = {
+        Body: new THREE.Color("hsl(35, 50%, 60%)"),
+        Chest: new THREE.Color("hsl(280, 15%, 10%)"),
+        Hips: new THREE.Color("hsl(280, 15%, 10%)"),
+        Pants: new THREE.Color("hsl(280, 5%, 35%)"),
+        Boots: new THREE.Color("hsl(280, 15%, 10%)"),
+        Forearm: new THREE.Color("hsl(280, 15%, 10%)"),
+        Belt: new THREE.Color("hsl(280, 15%, 10%)"),
+        Hair: new THREE.Color("hsl(25, 25%, 10%)"),
+        Gold: new THREE.Color("hsl(40, 70%, 50%)")
+    }
+
+    // New model
+    let gltfLoader = new GLTFLoader();
+    gltfLoader.load( 'models/Tan/Tan Version 1.4/TanNormals.glb',
+        function( fbx ) {
+            fbx.scene.traverse(
                 function( child ) {
                     if ( child.isMesh ) {
-                        console.log(child)
                         child.castShadow = true;
                         child.receiveShadow = true;
 
                         child.scale.set(0.9,0.9,0.9);
 
                         child.material = new THREE.MeshToonMaterial( {
+                            color: tanColors[child.name],
                             gradientMap: fourTone,
                             specular: '#111111',
-                            reflectivity: 0.2,
                             shininess: 0
                         } );
-
-                        let imgTexture = new THREE.TextureLoader().load( "models/Tan/Tan Version 1.3/" + child.name + "_TXTR.jpg" );
-                        imgTexture.wrapS = imgTexture.wrapT = THREE.RepeatWrapping;
-                        child.material.map = imgTexture;
-                        let bmpTexture = new THREE.TextureLoader().load( "models/Tan/Tan Version 1.3/" + child.name + "_NM.jpg" );
-                        bmpTexture.wrapS = bmpTexture.wrapT = THREE.RepeatWrapping;
-                        child.material.normalMap = bmpTexture;
-                        // These files probably aren't needed and are quite large
-                        // let dispTexture = new THREE.TextureLoader().load( "models/Tan/Tan Version 1.3/" + child.name + "_DM.png" );
-                        // dispTexture.wrapS = dispTexture.wrapT = THREE.RepeatWrapping;
-                        // child.material.displacementMap = dispTexture;
                     }
                 }
             );
-            redTeamOutline.selectedObjects.push(tanFbx);
-            tanFbx.rotateX(THREE.Math.degToRad(0));
-            tanFbx.rotateY(THREE.Math.degToRad(180));
-            tanFbx.rotateZ(THREE.Math.degToRad(180));
-            tanFbx.translateX( -150 );
-            tanFbx.translateY( 95 );
-            tanFbx.translateZ( 0 );
-            scene.add( tanFbx );
+
+            fbx.scene.translateX( 70 );
+            fbx.scene.translateY( -95 );
+            fbx.scene.translateZ( 0 );
+            scene.add( fbx.scene );
+            blueTeamOutline.selectedObjects.push(fbx.scene);
+            
+            tanModel = fbx;
         },
         function( xhr ){
             console.log( (xhr.loaded / xhr.total * 100) + "% loaded")
         },
         function( err ){
-            console.error( "Error loading 'Tan FBX 10.fbx'")
+            console.error( "Error loading 'Tan FBX 10.fbx'", err)
         }
+    );
+
+    // TODO: Delete this
+    fbxLoader.load( 'models/Tan/Tan Version 1.3/export - Copie.fbx',
     );
 
     gui = new GUI();
