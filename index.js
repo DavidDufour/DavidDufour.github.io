@@ -405,7 +405,7 @@ function init() {
             scene.add( fbx.scene );
             blueTeamOutline.selectedObjects.push(fbx.scene);
             
-            tanModel = fbx;
+            tanModel = fbx.scene;
         },
         function( xhr ){
             console.log( (xhr.loaded / xhr.total * 100) + "% loaded")
@@ -501,10 +501,10 @@ function animate() {
 
     stats.begin();
     if (moveLeft) {
-        tanModel.translateY( -8 );
+        tanModel.translateX( -8 );
     }
     if (moveRight) {
-        tanModel.translateY( 8 );
+        tanModel.translateX( 8 );
     }
     render();
     stats.end();
